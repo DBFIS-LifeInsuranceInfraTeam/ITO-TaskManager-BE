@@ -13,7 +13,8 @@ public interface UserService {
     //id로 사용자 조회
     Optional<User> getUserById(String id);
 
-    //Optional<User> getUserByEmail(String email);
+    //email로 사용자 조회
+    Optional<User> getUserByEmail(String email);
 
     //전체 사용자 조회
     List<User> getAllUsers();
@@ -22,5 +23,5 @@ public interface UserService {
     void deleteUser(String id);
 
     // 로그인 인증
-    boolean authenticateUser(String id, String password);
+    Optional<User> authenticateUser(String id, String password);
 }

@@ -34,6 +34,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    @Override
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
@@ -43,11 +48,24 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(id);
     }
 
+//    @Override
+//    public boolean authenticateUser(String id, String password) {
+//        Optional<User> user = userRepository.findById(id); // ID로 사용자 조회
+//        // 사용자 없음
+//        // 비밀번호 비교
+//        return user.filter(value -> passwordEncoder.matches(password, value.getPassword())).isPresent();
+//    }
+
     @Override
-    public boolean authenticateUser(String id, String password) {
-        Optional<User> user = userRepository.findById(id); // ID로 사용자 조회
-        // 사용자 없음
-        // 비밀번호 비교
-        return user.filter(value -> passwordEncoder.matches(password, value.getPassword())).isPresent();
+    public Optional<User> authenticateUser(String id, String password) {
+        Optional<User> userOptional = userRepository.findById(id); // ID로 사용자 조회
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            // 비밀번호가 일치하는지 확인
+            if (passwordEncoder.matches(password, user.getPassword())) {
+                return userOptional; // 비밀번호가 일치하면 사용자 객체 반환
+            }
+        }
+        return Optional.empty(); // 인증 실패 시 빈 Optional 반환
     }
 }
