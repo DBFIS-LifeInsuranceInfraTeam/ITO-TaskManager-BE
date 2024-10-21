@@ -2,7 +2,6 @@ package com.ITOPW.itopw.entity;
 
 import jakarta.persistence.*;
 import com.fasterxml.jackson.databind.JsonNode;
-
 import java.time.LocalDate;
 
 @Entity
@@ -10,7 +9,7 @@ import java.time.LocalDate;
 public class Task {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    //@GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "task_id")
     private Integer taskId;
 
