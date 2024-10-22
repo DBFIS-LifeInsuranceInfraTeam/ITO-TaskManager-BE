@@ -1,7 +1,6 @@
 package com.ITOPW.itopw.entity;
 
 import jakarta.persistence.*;
-import com.fasterxml.jackson.databind.JsonNode;
 import java.time.LocalDate;
 
 @Entity
@@ -9,45 +8,44 @@ import java.time.LocalDate;
 public class Task {
 
     @Id
-    //@GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "task_id")
+    @Column(name = "task_id", nullable = false) // PK, NOT NULL
     private Integer taskId;
 
-    @Column(name = "project_id")
+    @Column(name = "project_id", nullable = false) // NOT NULL
     private Integer projectId;
 
-    @Column(name = "task_name")
+    @Column(name = "task_name", nullable = false) // NOT NULL
     private String taskName;
 
     @Column(name = "description")
     private String description;
 
-    @Column(name = "assignee_id") // text로 변경
-    private String assigneeId;  // String으로 변경
+    @Column(name = "assignee_id", nullable = false) // NOT NULL
+    private String assigneeId;
 
-    @Column(name = "created_date")
+    @Column(name = "created_date", nullable = false) // NOT NULL
     private LocalDate createdDate;
 
-    @Column(name = "start_date")
+    @Column(name = "start_date", nullable = false) // NOT NULL
     private LocalDate startDate;
 
     @Column(name = "due_date")
     private LocalDate dueDate;
 
-    @Column(name = "frequency_id")
+    @Column(name = "frequency_id") // FK, nullable
     private Integer frequencyId;
 
-    @Column(name = "comment_count")
-    private Integer commentCount;
+    @Column(name = "comment_count", nullable = false, columnDefinition = "INTEGER DEFAULT 0") // NOT NULL, 기본값 0
+    private Integer commentCount = 0;  // 기본값 0으로 초기화
 
-    @Column(name = "status")
+    @Column(name = "status", nullable = false) // NOT NULL
     private Integer status;
 
-    @Column(name = "ito_process_id")
+    @Column(name = "ito_process_id", nullable = false) // NOT NULL
     private Integer itoProcessId;
 
-    @Column(name = "assignee_confirmation") // text로 변경
-    private String assigneeConfirmation; // String으로 변경
+    @Column(name = "assignee_confirmation", nullable = false) // NOT NULL
+    private String assigneeConfirmation;
 
     // Getters and Setters
     public Integer getTaskId() {
