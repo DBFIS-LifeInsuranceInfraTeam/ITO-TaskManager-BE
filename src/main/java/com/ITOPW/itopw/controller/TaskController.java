@@ -29,10 +29,4 @@ public class TaskController {
         }
     }
 
-    @GetMapping("/{id}") // ID로 태스크 조회
-    public ResponseEntity<Task> getTaskById(@PathVariable Integer id) {
-        Optional<Task> taskData = taskService.getTaskById(id);
-        return taskData.map(task -> new ResponseEntity<>(task, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND)); // 태스크가 없으면 404 반환
-    }
 }
