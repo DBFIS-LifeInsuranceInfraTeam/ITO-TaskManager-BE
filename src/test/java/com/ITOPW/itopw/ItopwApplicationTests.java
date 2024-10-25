@@ -1,0 +1,35 @@
+package com.ITOPW.itopw;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+@SpringBootTest
+class ItopwApplicationTests {
+
+	@Autowired
+	private DataSource dataSource;
+
+	@Test
+	void contextLoads() {
+		// 기존의 컨텍스트 로드 테스트
+	}
+
+	@Test
+	void testDataSourceConnection() {
+		try (Connection connection = dataSource.getConnection()) {
+			assertNotNull(connection);
+			System.out.println("연결 성공! 데이터베이스에 연결되었습니다.");
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new RuntimeException("연결 실패: " + e.getMessage());
+		}
+	}
+}
