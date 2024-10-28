@@ -29,20 +29,15 @@ public class SecurityConfig {
                         .requestMatchers("/api/**", "/images/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .cors(withDefaults())  // CORS 설정 활성화
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // 세션을 Stateless로 설정
-                );
-
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()));  // CORS 설정
         return http.build();
     }
 
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*"));
+        configuration.setAllowedOrigins(List.of("*"));  // 모든 오리진 허용
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Content-Type", "Authorization", "Accept"));
+        configuration.setAllowedHeaders(List.of("Content-Type", "Authorization"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
