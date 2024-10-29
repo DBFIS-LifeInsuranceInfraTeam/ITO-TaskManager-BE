@@ -33,10 +33,31 @@ public class TaskController {
                 : ResponseEntity.ok(tasks); // 200 OK
     }
 
+    @GetMapping("/{id}") // ID로 태스크 상세 조회
+    public ResponseEntity<Task> getTaskById(@PathVariable Integer id) {
+        Task task = taskService.getTaskById(id);
+        return task != null
+                ? ResponseEntity.ok(task) // 200 OK
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 404 Not Found
+    }
+
+    // 월별 업무 조회
+    @GetMapping("/monthly")
+    public ResponseEntity<List<Task>> getTasksByMonth(
+            @RequestParam int year,
+            @RequestParam int month
+    ) {
+        List<Task> tasks = taskService.getTasksByMonth(year, month);
+        return tasks.isEmpty()
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(tasks);
+    }
+
     @DeleteMapping("/{id}") // ID로 태스크 삭제
     public ResponseEntity<Response> deleteTask(@PathVariable Integer id) {
         return taskService.deleteTask(id);
     }
+
 
     @PutMapping("/{id}") // ID로 태스크 수정
     public ResponseEntity<Response> updateTask(@PathVariable Integer id, @RequestBody TaskRequest taskRequest) {
