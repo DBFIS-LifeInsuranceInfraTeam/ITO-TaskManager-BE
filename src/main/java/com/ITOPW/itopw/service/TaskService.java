@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,6 +65,16 @@ public class TaskService {
 
     public List<Task> getAllTasks() {
         return taskRepository.findAll();
+    }
+
+    public Task getTaskById(Integer id) {
+        return taskRepository.findById(id).orElse(null);
+    }
+
+    public List<Task> getTasksByMonth(int year, int month) {
+        LocalDate startDate = LocalDate.of(year, month, 1);
+        LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
+        return taskRepository.findByDueDateBetween(startDate, endDate);
     }
 
     public ResponseEntity<Response> deleteTask(Integer id) {
