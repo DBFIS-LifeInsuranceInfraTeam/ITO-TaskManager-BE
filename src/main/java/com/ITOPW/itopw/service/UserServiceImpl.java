@@ -29,8 +29,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> getUserById(String id) {
-        return userRepository.findById(id);
+    public Optional<User> getUserByUserId(String id) {
+        return userRepository.findByUserId(id);
     }
 
     @Override
@@ -57,15 +57,22 @@ public class UserServiceImpl implements UserService {
 //    }
 
     @Override
-    public Optional<User> authenticateUser(String id, String password) {
-        Optional<User> userOptional = userRepository.findById(id); // ID로 사용자 조회
+    public Optional<User> authenticateUser(String userId, String password) {
+        Optional<User> userOptional = userRepository.findByUserId(userId); // ID로 사용자 조회
+
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             // 비밀번호가 일치하는지 확인
+
             if (passwordEncoder.matches(password, user.getPassword())) {
                 return userOptional; // 비밀번호가 일치하면 사용자 객체 반환
             }
         }
         return Optional.empty(); // 인증 실패 시 빈 Optional 반환
+    }
+
+    @Override
+    public List<User> getUsersByProjectId(String projectId) {
+        return userRepository.findByProjectId(projectId);
     }
 }

@@ -31,7 +31,7 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<BaseResponseDTO<SignupResponseDTO>> signup(@RequestBody SignupRequestDTO signupRequest) {
         // 이미 등록된 사용자 확인
-        Optional<User> existingUserById = userService.getUserById(signupRequest.getId());
+        Optional<User> existingUserById = userService.getUserByUserId(signupRequest.getUserId());
         Optional<User> existingUserByEmail = userService.getUserByEmail(signupRequest.getEmail());
 
         if (existingUserById.isPresent() || existingUserByEmail.isPresent()) {
@@ -41,13 +41,14 @@ public class AuthController {
         }
 
         User user = new User();
-        user.setId(signupRequest.getId());
+        user.setUserId(signupRequest.getUserId());
         user.setName(signupRequest.getName());
         user.setPassword(signupRequest.getPassword());
         user.setUnit(signupRequest.getUnit());
-        user.setTeam(signupRequest.getTeam());
+        user.setProjectId(signupRequest.getProjectId());
         user.setEmail(signupRequest.getEmail());
-        user.setPhone_number(signupRequest.getPhone_number());
+        user.setPhoneNumber(signupRequest.getPhoneNumber());
+        user.setAdmin(signupRequest.getAdmin());
         // photo가 null이면 기본 이미지 URL로 설정
         // 프로필 이미지 목록
         String[] profileImages = {
@@ -67,7 +68,7 @@ public class AuthController {
 
         userService.registerUser(user);
 
-        SignupResponseDTO signupResponse = new SignupResponseDTO(user.getId(), user.getName());
+        SignupResponseDTO signupResponse = new SignupResponseDTO(user.getUserId(), user.getName());
         BaseResponseDTO<SignupResponseDTO> response = new BaseResponseDTO<>(201, "Created", "회원가입 성공", signupResponse);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -76,19 +77,21 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<BaseResponseDTO<LoginResponseDTO>> login(@RequestBody LoginRequestDTO loginRequest) {
+
         // 사용자 인증 시도
-        Optional<User> userOptional = userService.authenticateUser(loginRequest.getId(), loginRequest.getPassword());
+        Optional<User> userOptional = userService.authenticateUser(loginRequest.getUserId(), loginRequest.getPassword());
 
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            String token = jwtUtil.generateToken(user.getId()); // JWT 생성
+            String token = jwtUtil.generateToken(user.getUserId()); // JWT 생성
             UserInfoResponseDto userInfo = new UserInfoResponseDto(
-                    user.getId(),
+                    user.getUserId(),
                     user.getName(),
                     user.getEmail(),
-                    user.getPhone_number(),
+                    user.getPhoneNumber(),
                     user.getPhoto(),
-                    user.getPosition()
+                    user.getPosition(),
+                    user.getProjectId()
             );
             LoginResponseDTO loginResponse = new LoginResponseDTO(token,3600, userInfo);
             BaseResponseDTO<LoginResponseDTO> response = new BaseResponseDTO<>(200, "OK", "로그인 성공", loginResponse);
