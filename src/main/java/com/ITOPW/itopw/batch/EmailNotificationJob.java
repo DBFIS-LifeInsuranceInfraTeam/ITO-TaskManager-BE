@@ -39,8 +39,14 @@ public class EmailNotificationJob implements Job {
 
         for (Task task : tasksDueTomorrow) {
             try {
+                System.out.println(task.getAssigneeId());
+
                 User assignee = userRepository.findById(task.getAssigneeId()).orElseThrow(() ->
                         new Exception("담당자를 찾을 수 없습니다. Task ID: " + task.getTaskId()));
+
+                // assignee 정보를 출력
+                System.out.println("담당자 정보: " + assignee);
+
                 if (assignee.getEmail() != null) {
                     sendEmail(assignee.getEmail(), task.getTaskName());
                 } else {

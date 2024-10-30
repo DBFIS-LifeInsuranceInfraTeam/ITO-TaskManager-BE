@@ -7,12 +7,35 @@ import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Scheduler;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
+import org.quartz.spi.JobFactory;
+import org.springframework.scheduling.quartz.SpringBeanJobFactory;
+
 @Configuration
 public class QuartzConfig {
+
+
+    @Autowired
+    private ApplicationContext applicationContext; // ApplicationContext 주입
+
+    @Bean
+    public JobFactory jobFactory() {
+        SpringBeanJobFactory jobFactory = new SpringBeanJobFactory();
+        jobFactory.setApplicationContext(applicationContext); // ApplicationContext 설정
+        return jobFactory;
+    }
+
+    @Bean
+    public SchedulerFactoryBean schedulerFactoryBean() {
+        SchedulerFactoryBean factory = new SchedulerFactoryBean();
+        factory.setJobFactory(jobFactory());
+        return factory;
+    }
 
     @Bean
     public JobDetail emailNotificationJobDetail() {
@@ -27,7 +50,7 @@ public class QuartzConfig {
         return TriggerBuilder.newTrigger()
                 .forJob(emailNotificationJobDetail())
                 .withIdentity("emailNotificationTrigger")
-                .withSchedule(CronScheduleBuilder.cronSchedule("0 0 18 * * ?")) // 매일 저녁 6시 실행
+                .withSchedule(CronScheduleBuilder.cronSchedule("* * * * * ?")) // 매일 저녁 6시 실행
                 .build();
     }
 
@@ -39,8 +62,8 @@ public class QuartzConfig {
         return scheduler;
     }
 
-    @Bean
-    public SchedulerFactoryBean schedulerFactoryBean() {
-        return new SchedulerFactoryBean();
-    }
+//    @Bean
+//    public SchedulerFactoryBean schedulerFactoryBean() {
+//        return new SchedulerFactoryBean();
+//    }
 }
