@@ -6,20 +6,22 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserInfoResponseDto {
-    private String id; // 사용자 ID
+    private String userId; // 사용자 ID
     private String name; // 이름
     private String email; // 이메일
-    private String phone_number; // 전화번호
+    private String phoneNumber; // 전화번호
     private String photo; // 사진
     private String position; // 직급
+    private String projectId;
 
     // 생성자
-    public UserInfoResponseDto(String id, String name, String email, String phone_number, String photo, String position) {
-        this.id = id;
+    public UserInfoResponseDto(String userId, String name, String email, String phoneNumber, String photo, String position, String projectId) {
+        this.userId = userId;
         this.name = name;
         this.email = email;
-        this.phone_number = phone_number;
+        this.phoneNumber = phoneNumber;
         this.photo = photo;
         this.position = position;
+        this.projectId = projectId;
     }
 }
