@@ -3,7 +3,7 @@ package com.ITOPW.itopw.dto;
 import java.time.LocalDate;
 
 public class TaskRequest {
-    private Integer taskId;
+    private String taskId; // Integer에서 String으로 변경
     private Integer projectId;
     private String taskName;
     private String description;
@@ -12,17 +12,17 @@ public class TaskRequest {
     private LocalDate startDate;
     private LocalDate dueDate;
     private Integer frequencyId;
-    private Integer commentCount;
+    private Integer commentCount; // 필요 없다면 제거 가능
     private Integer status;
     private Integer itoProcessId;
     private String assigneeConfirmation;
 
     // Getters and Setters
-    public Integer getTaskId() {
+    public String getTaskId() {
         return taskId;
     }
 
-    public void setTaskId(Integer taskId) {
+    public void setTaskId(String taskId) {
         this.taskId = taskId;
     }
 

@@ -34,7 +34,7 @@ public class TaskController {
     }
 
     @GetMapping("/{id}") // ID로 태스크 상세 조회
-    public ResponseEntity<Task> getTaskById(@PathVariable Integer id) {
+    public ResponseEntity<Task> getTaskById(@PathVariable String id) { // String으로 수정
         Task task = taskService.getTaskById(id);
         return task != null
                 ? ResponseEntity.ok(task) // 200 OK
@@ -54,13 +54,12 @@ public class TaskController {
     }
 
     @DeleteMapping("/{id}") // ID로 태스크 삭제
-    public ResponseEntity<Response> deleteTask(@PathVariable Integer id) {
+    public ResponseEntity<Response> deleteTask(@PathVariable String id) { // String으로 수정
         return taskService.deleteTask(id);
     }
 
-
     @PutMapping("/{id}") // ID로 태스크 수정
-    public ResponseEntity<Response> updateTask(@PathVariable Integer id, @RequestBody TaskRequest taskRequest) {
+    public ResponseEntity<Response> updateTask(@PathVariable String id, @RequestBody TaskRequest taskRequest) { // String으로 수정
         return taskService.updateTask(id, taskRequest);
     }
 }

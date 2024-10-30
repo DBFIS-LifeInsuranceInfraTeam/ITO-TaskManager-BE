@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,31 +42,31 @@ public class TaskService {
         }
 
         // 새 태스크 생성
-        Task newTask = new Task();
-        newTask.setTaskId(taskRequest.getTaskId());
-        newTask.setProjectId(taskRequest.getProjectId());
-        newTask.setTaskName(taskRequest.getTaskName());
-        newTask.setDescription(taskRequest.getDescription());
-        newTask.setAssigneeId(taskRequest.getAssigneeId());
-        newTask.setCreatedDate(taskRequest.getCreatedDate());
-        newTask.setStartDate(taskRequest.getStartDate());
-        newTask.setDueDate(taskRequest.getDueDate());
-        newTask.setFrequencyId(taskRequest.getFrequencyId());
-        newTask.setCommentCount(0); // 기본값 0
-        newTask.setStatus(taskRequest.getStatus());
-        newTask.setItoProcessId(taskRequest.getItoProcessId());
-        newTask.setAssigneeConfirmation(taskRequest.getAssigneeConfirmation());
+        Task newTask = Task.builder()
+                .taskId(taskRequest.getTaskId())
+                .projectId(taskRequest.getProjectId())
+                .taskName(taskRequest.getTaskName())
+                .description(taskRequest.getDescription())
+                .assigneeId(taskRequest.getAssigneeId())
+                .createdDate(taskRequest.getCreatedDate())
+                .startDate(taskRequest.getStartDate())
+                .dueDate(taskRequest.getDueDate())
+                .frequencyId(taskRequest.getFrequencyId())
+                .commentCount(0) // 기본값 0
+                .status(taskRequest.getStatus())
+                .itoProcessId(taskRequest.getItoProcessId())
+                .assigneeConfirmation(taskRequest.getAssigneeConfirmation())
+                .build();
 
         Task createdTask = taskRepository.save(newTask);
         return new ResponseEntity<>(new Response(201, "Created", "업무가 성공적으로 생성되었습니다.", createdTask), HttpStatus.CREATED);
     }
 
-
     public List<Task> getAllTasks() {
         return taskRepository.findAll();
     }
 
-    public Task getTaskById(Integer id) {
+    public Task getTaskById(String id) { // String으로 수정
         return taskRepository.findById(id).orElse(null);
     }
 
@@ -77,8 +76,8 @@ public class TaskService {
         return taskRepository.findByDueDateBetween(startDate, endDate);
     }
 
-    public ResponseEntity<Response> deleteTask(Integer id) {
-        if (id == null || id <= 0) {
+    public ResponseEntity<Response> deleteTask(String id) { // String으로 수정
+        if (id == null || id.trim().isEmpty()) {
             // 유효하지 않은 ID가 제공된 경우
             return new ResponseEntity<>(new Response(400, "Bad Request", "유효하지 않은 요청입니다. ID를 확인하세요.", null), HttpStatus.BAD_REQUEST);
         }
@@ -91,7 +90,7 @@ public class TaskService {
         return new ResponseEntity<>(new Response(404, "Not Found", "해당 업무를 찾을 수 없습니다.", null), HttpStatus.NOT_FOUND);
     }
 
-    public ResponseEntity<Response> updateTask(Integer id, TaskRequest taskRequest) {
+    public ResponseEntity<Response> updateTask(String id, TaskRequest taskRequest) { // String으로 수정
         // 필수 필드 유효성 검사
         if (taskRequest.getTaskId() == null || taskRequest.getProjectId() == null ||
                 taskRequest.getTaskName() == null || taskRequest.getAssigneeId() == null ||
@@ -99,7 +98,6 @@ public class TaskService {
                 taskRequest.getStatus() == null || taskRequest.getItoProcessId() == null ||
                 taskRequest.getAssigneeConfirmation() == null) {
 
-            // 필수 필드가 누락된 경우 400 Bad Request 응답 반환
             return new ResponseEntity<>(new Response(400, "Bad Request", "잘못된 요청입니다. 필수 필드를 확인하세요.", null), HttpStatus.BAD_REQUEST);
         }
 
@@ -126,5 +124,4 @@ public class TaskService {
         }
         return new ResponseEntity<>(new Response(404, "Not Found", "해당 업무를 찾을 수 없습니다.", null), HttpStatus.NOT_FOUND);
     }
-
 }
