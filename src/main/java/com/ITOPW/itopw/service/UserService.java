@@ -11,7 +11,7 @@ public interface UserService {
     User registerUser(User user);
 
     //id로 사용자 조회
-    Optional<User> getUserById(String id);
+    Optional<User> getUserByUserId(String userId);
 
     //email로 사용자 조회
     Optional<User> getUserByEmail(String email);
@@ -23,5 +23,7 @@ public interface UserService {
     void deleteUser(String id);
 
     // 로그인 인증
-    Optional<User> authenticateUser(String id, String password);
+    Optional<User> authenticateUser(String userId, String password);
+
+    List<User> getUsersByProjectId(String projectId);
 }

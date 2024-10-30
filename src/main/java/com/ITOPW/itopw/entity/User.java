@@ -1,9 +1,7 @@
 package com.ITOPW.itopw.entity;
-
 import lombok.*;
-
 import jakarta.persistence.*;
-import java.time.LocalDate;
+
 
 @Entity
 @Builder
@@ -11,12 +9,12 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Getter
 @Setter
-@Table(name = "users")
+@Table(name = "\"user\"")
 public class User {
 
     @Id
-    @Column(name = "id", length = 50)
-    private String id;  // 사용자가 입력하는 ID
+    @Column(name = "user_id", length = 50)
+    private String userId;  // 사용자가 입력하는 ID
 
     @Column(name = "name", length = 20, nullable = false)
     private String name;
@@ -27,14 +25,14 @@ public class User {
     @Column(name = "unit", length = 50)
     private String unit;
 
-    @Column(name = "team", length = 50)
-    private String team;
+    @Column(name = "project_id", length = 50)
+    private String projectId;
 
     @Column(name = "email", length = 255, nullable = false, unique = true)
     private String email;
 
     @Column(name = "phone_number", length = 15)
-    private String phone_number;
+    private String phoneNumber;
 
     // 이미지 경로를 저장할 경우 String 사용
     @Column(name = "photo")
@@ -42,5 +40,8 @@ public class User {
 
     @Column(name = "position", length = 50)
     private String position;
+
+    @Column(name = "admin")
+    private Boolean admin;
 
 }
