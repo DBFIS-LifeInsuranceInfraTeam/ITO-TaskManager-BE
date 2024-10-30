@@ -1,17 +1,46 @@
 package com.ITOPW.itopw.config;
+
+import com.ITOPW.itopw.batch.EmailNotificationJob;
+import org.quartz.JobBuilder;
+import org.quartz.JobDetail;
+import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
+import org.quartz.CronScheduleBuilder;
+import org.quartz.Scheduler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
 @Configuration
-@EnableScheduling
 public class QuartzConfig {
 
     @Bean
+    public JobDetail emailNotificationJobDetail() {
+        return JobBuilder.newJob(EmailNotificationJob.class)
+                .withIdentity("emailNotificationJob")
+                .storeDurably()
+                .build();
+    }
+
+    @Bean
+    public Trigger emailNotificationJobTrigger() {
+        return TriggerBuilder.newTrigger()
+                .forJob(emailNotificationJobDetail())
+                .withIdentity("emailNotificationTrigger")
+                .withSchedule(CronScheduleBuilder.cronSchedule("0 0 18 * * ?")) // 매일 저녁 6시 실행
+                .build();
+    }
+
+    @Bean
+    public Scheduler scheduler(SchedulerFactoryBean factory) throws Exception {
+        Scheduler scheduler = factory.getScheduler();
+        scheduler.start();
+        scheduler.scheduleJob(emailNotificationJobDetail(), emailNotificationJobTrigger());
+        return scheduler;
+    }
+
+    @Bean
     public SchedulerFactoryBean schedulerFactoryBean() {
-        SchedulerFactoryBean factory = new SchedulerFactoryBean();
-        // 추가적인 설정이 필요하다면 여기에 추가
-        return factory;
+        return new SchedulerFactoryBean();
     }
 }
