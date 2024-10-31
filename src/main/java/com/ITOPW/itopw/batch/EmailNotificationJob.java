@@ -41,7 +41,8 @@ public class EmailNotificationJob implements Job {
             try {
                 System.out.println(task.getAssigneeId());
 
-                User assignee = userRepository.findById(task.getAssigneeId()).orElseThrow(() ->
+                // findById -> findByUserId로 변경~!
+                User assignee = userRepository.findByUserId(task.getAssigneeId()).orElseThrow(() ->
                         new Exception("담당자를 찾을 수 없습니다. Task ID: " + task.getTaskId()));
 
                 // assignee 정보를 출력
