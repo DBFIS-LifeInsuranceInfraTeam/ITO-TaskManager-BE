@@ -71,11 +71,13 @@ public class EmailNotificationJob implements Job {
                     + "</a>"
                     + "<h1>작업 마감일 알림</h1>"
                     + "<br>"
-                    + "<p style='font-size: 17px;'>"
+                    + "<p style='font-size: 19px;'>"
                     + task.getTaskName() + "의 마감이 하루 남았습니다!</p>"
-                    + "<p>작업명: <b>" + task.getTaskName() + "</b></p>"
-                    + "<p>담당자: <b>" + assignee.getName() + "</b></p>"
-                    + "<p>마감일: <b>" + task.getDueDate() + "</b></p>"
+                    + "<div style='display: inline-block; text-align: left;'>"
+                    + "<p style='margin: 0; font-size: 17px;'>작업명: <b>" + task.getTaskName() + "</b></p>"
+                    + "<p style='margin: 0; font-size: 17px;'>담당자: <b>" + assignee.getName() + "</b></p>"
+                    + "<p style='margin: 0; font-size: 17px;'>마감일: <b>" + task.getDueDate() + "</b></p>"
+                    + "</div>"
                     + "</div>";
 
 
