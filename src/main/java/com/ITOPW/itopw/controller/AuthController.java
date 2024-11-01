@@ -91,6 +91,7 @@ public class AuthController {
                     user.getPhoneNumber(),
                     user.getPhoto(),
                     user.getPosition(),
+                    user.getUnit(),
                     user.getProjectId()
             );
             LoginResponseDTO loginResponse = new LoginResponseDTO(token,3600, userInfo);

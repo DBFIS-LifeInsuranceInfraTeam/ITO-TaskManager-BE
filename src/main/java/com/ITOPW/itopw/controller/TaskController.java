@@ -2,6 +2,8 @@ package com.ITOPW.itopw.controller;
 
 import com.ITOPW.itopw.dto.Response;
 import com.ITOPW.itopw.dto.TaskRequest;
+import com.ITOPW.itopw.dto.response.BaseResponseDTO;
+import com.ITOPW.itopw.dto.response.TaskResponseDTO;
 import com.ITOPW.itopw.entity.Task;
 import com.ITOPW.itopw.service.TaskService;
 import org.springframework.http.HttpStatus;
@@ -33,12 +35,12 @@ public class TaskController {
                 : ResponseEntity.ok(tasks); // 200 OK
     }
 
-    @GetMapping("/{id}") // ID로 태스크 상세 조회
-    public ResponseEntity<Task> getTaskById(@PathVariable String id) { // String으로 수정
-        Task task = taskService.getTaskById(id);
-        return task != null
-                ? ResponseEntity.ok(task) // 200 OK
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 404 Not Found
+    @GetMapping("/{taskId}")
+    public ResponseEntity<TaskResponseDTO> getTaskById(@PathVariable String taskId) {
+        TaskResponseDTO taskResponse = taskService.getTaskById(taskId);
+        return taskResponse != null
+                ? ResponseEntity.ok(taskResponse)
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     // 월별 업무 조회
