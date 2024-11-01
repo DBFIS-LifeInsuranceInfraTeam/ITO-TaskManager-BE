@@ -17,7 +17,7 @@ import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
 
-@Component
+//@Component
 public class EmailNotificationJob implements Job {
 
     @Autowired

@@ -16,7 +16,7 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.quartz.spi.JobFactory;
 import org.springframework.scheduling.quartz.SpringBeanJobFactory;
 
-@Configuration
+//@Configuration
 public class QuartzConfig {
 
 

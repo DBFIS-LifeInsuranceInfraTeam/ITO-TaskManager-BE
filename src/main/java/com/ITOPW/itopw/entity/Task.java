@@ -1,9 +1,12 @@
 package com.ITOPW.itopw.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -53,4 +56,8 @@ public class Task {
     @Column(name = "assignee_confirmation", nullable = false) // NOT NULL
     private String assigneeConfirmation;
 
+
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonIgnore // 전체 조회 시 이 필드를 응답에 포함하지 않음
+    private List<Comment> comments;
 }

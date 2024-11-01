@@ -2,20 +2,22 @@ package com.ITOPW.itopw.service;
 
 import com.ITOPW.itopw.dto.Response;
 import com.ITOPW.itopw.dto.TaskRequest;
+import com.ITOPW.itopw.dto.response.CommentResponseDTO;
+import com.ITOPW.itopw.dto.response.TaskResponseDTO;
 import com.ITOPW.itopw.entity.Task;
 import com.ITOPW.itopw.repository.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskService {
@@ -73,8 +75,29 @@ public class TaskService {
         return taskRepository.findAll();
     }
 
-    public Task getTaskById(String taskId) {
-        return taskRepository.findByTaskId(taskId).orElse(null);
+
+
+//    @Transactional(readOnly = true)
+//    @EntityGraph(attributePaths = {"comments"})
+//    public Task getTaskById(String taskId) {
+//        return taskRepository.findByTaskId(taskId).orElse(null);
+//    }
+
+    @Transactional(readOnly = true)
+    public TaskResponseDTO getTaskById(String taskId) {
+        Task task = taskRepository.findByTaskId(taskId).orElse(null);
+        if (task == null) return null;
+
+        List<CommentResponseDTO> comments = task.getComments().stream()
+                .map(comment -> new CommentResponseDTO(comment.getCommentId(), comment.getCommenterId(),comment.getCommentContent(), comment.getCreateDate(), comment.getLikeCount(), comment.getLikedUsers()))
+                .collect(Collectors.toList());
+
+        return new TaskResponseDTO(
+                task.getTaskId(), task.getProjectId(), task.getTaskName(), task.getDescription(),
+                task.getAssigneeId(), task.getCreatedDate(), task.getStartDate(), task.getDueDate(),
+                task.getFrequencyId(), task.getCommentCount(), task.getStatus(),
+                task.getItoProcessId(), task.getAssigneeConfirmation(), comments
+        );
     }
 
     public List<Task> getTasksByMonth(int year, int month) {
