@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -63,5 +64,17 @@ public class TaskController {
     @PutMapping("/{id}") // ID로 태스크 수정
     public ResponseEntity<Response> updateTask(@PathVariable String id, @RequestBody TaskRequest taskRequest) { // String으로 수정
         return taskService.updateTask(id, taskRequest);
+    }
+
+    // 업무 검색(ito프로세스, 업무명, 기간, 담당자)
+    @GetMapping("/search")
+    public List<Task> searchTasks(
+            @RequestParam(required = false) String itoProcessId,
+            @RequestParam(required = false) String assigneeId,
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate dueDate,
+            @RequestParam(required = false) String taskName
+    ) {
+        return taskService.searchTasks(itoProcessId, assigneeId, startDate, dueDate, taskName);
     }
 }

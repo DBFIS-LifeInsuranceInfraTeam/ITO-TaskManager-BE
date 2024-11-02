@@ -7,6 +7,7 @@ import com.ITOPW.itopw.dto.response.TaskResponseDTO;
 import com.ITOPW.itopw.entity.Task;
 import com.ITOPW.itopw.repository.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -156,4 +157,10 @@ public class TaskService {
         return new ResponseEntity<>(new Response(404, "Not Found", "해당 업무를 찾을 수 없습니다.", null), HttpStatus.NOT_FOUND);
     }
 
+
+    @Transactional(readOnly = true)
+    public List<Task> searchTasks(String itoProcessId, String assigneeId, LocalDate startDate, LocalDate dueDate, String taskName) {
+        Specification<Task> spec = TaskSpecification.buildSpecification(itoProcessId, assigneeId, startDate, dueDate, taskName);
+        return taskRepository.findAll(spec);
+    }
 }
