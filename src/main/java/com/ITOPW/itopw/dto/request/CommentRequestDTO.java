@@ -9,6 +9,4 @@ public class CommentRequestDTO {
     private String taskId;
     private String commenterId;
     private String commentContent;
-
-
 }

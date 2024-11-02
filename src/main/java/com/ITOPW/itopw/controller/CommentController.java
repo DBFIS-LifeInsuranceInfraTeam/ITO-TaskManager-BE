@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/comments")
@@ -36,12 +37,25 @@ public class CommentController {
     }
 
     @PostMapping("/{commentId}/like")
-    public ResponseEntity<?> likeComment(@PathVariable Long commentId, @RequestParam String userId) {
+    public ResponseEntity<?> likeComment(@PathVariable Long commentId, @RequestBody Map<String, String> request) {
         try {
+            String userId = request.get("userId");
             Comment updatedComment = commentService.likeComment(commentId, userId);
             return ResponseEntity.ok(updatedComment);
         } catch (IllegalArgumentException | IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    // CommentController.java
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<?> deleteComment(@PathVariable Long commentId, @RequestBody Map<String, String> request) {
+        try {
+            String userId = request.get("userId");
+            commentService.deleteComment(commentId, userId);
+            return ResponseEntity.ok("Comment deleted successfully.");
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         }
     }
 

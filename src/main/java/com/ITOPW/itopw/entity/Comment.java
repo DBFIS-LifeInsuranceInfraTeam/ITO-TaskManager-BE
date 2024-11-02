@@ -1,6 +1,9 @@
 package com.ITOPW.itopw.entity;
+
+import io.hypersistence.utils.hibernate.type.array.ListArrayType;
 import lombok.*;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Type;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -8,7 +11,6 @@ import java.util.List;
 
 
 @Entity
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -39,17 +41,24 @@ public class Comment {
 
     // Task와의 관계 설정
     @ManyToOne
-    @JoinColumn(name = "task_id", insertable = false, updatable = false)
+    @JoinColumn(name = "task_id", nullable = false) // task_id를 FK로 설정
     private Task task;
 
-    // task_id를 사용하는 다른 필드가 있으면 insertable = false, updatable = false 설정
-    @Column(name = "task_id", insertable = false, updatable = false)
-    private String taskId;
+//    // task_id를 사용하는 다른 필드가 있으면 insertable = false, updatable = false 설정
+//    @Column(name = "task_id", insertable = false, updatable = false)
+//    private String taskId;
 
 
-    @ElementCollection
-    @CollectionTable(name = "comment_liked_users", joinColumns = @JoinColumn(name = "comment_id"))
-    @Column(name = "liked_users")
-    private List<String> likedUsers = new ArrayList<>(); // 초기값 빈 리스트
+//    @ElementCollection
+//    @CollectionTable(name = "comment_liked_users", joinColumns = @JoinColumn(name = "comment_id"))
+//    @Column(name = "liked_users")
+// Use jsonb type to store the list of liked users
+    //@Type(type="string-list")
+    @Type(ListArrayType.class)
+    @Column(
+            name = "liked_users_arr",
+            columnDefinition = "text[]"
+    )
+    private List<String> likedUsers = new ArrayList<>();
 
 }
