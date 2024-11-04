@@ -28,9 +28,9 @@ public class TaskController {
         return taskService.createTask(taskRequest);
     }
 
-    @GetMapping("/all") // 전체 태스크 조회
-    public ResponseEntity<List<Task>> getAllTasks() {
-        List<Task> tasks = taskService.getAllTasks();
+    @GetMapping("") // 전체 태스크 조회(프로젝트 ID 기반 필터링)
+    public ResponseEntity<List<Task>> getAllTasksByProjectId(@RequestParam List<String> projectIds) {
+        List<Task> tasks = taskService.getTasksByProjectIds(projectIds);
         return tasks.isEmpty()
                 ? ResponseEntity.noContent().build() // 204 No Content
                 : ResponseEntity.ok(tasks); // 200 OK
@@ -44,13 +44,14 @@ public class TaskController {
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
-    // 월별 업무 조회
+    // 월별 업무 조회 (프로젝트 ID 기반 필터링 추가)
     @GetMapping("/monthly")
     public ResponseEntity<List<Task>> getTasksByMonth(
             @RequestParam int year,
-            @RequestParam int month
+            @RequestParam int month,
+            @RequestParam List<String> projectIds // 프로젝트 ID 목록을 배열로 받음
     ) {
-        List<Task> tasks = taskService.getTasksByMonth(year, month);
+        List<Task> tasks = taskService.getTasksByMonthAndProjectIds(year, month, projectIds);
         return tasks.isEmpty()
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.ok(tasks);

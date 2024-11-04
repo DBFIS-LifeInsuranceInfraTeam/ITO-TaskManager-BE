@@ -23,7 +23,7 @@ public class Statistics {
     private String projectId;
 
     @Column(name = "month")
-    private LocalDate month;
+    private String month;
 
     @Column(name = "total_tasks")
     private Integer totalTasks;
@@ -52,5 +52,21 @@ public class Statistics {
     @Column(name = "previous_delayed_percentage")
     private BigDecimal previousDelayedPercentage;
 
+    @Override
+    public String toString() {
+        return "Statistics{" +
+                "projectId='" + projectId + '\'' +
+                ", month=" + month +
+                ", totalTasks=" + totalTasks +
+                ", beforePercentage=" + beforePercentage +
+                ", progressPercentage=" + progressPercentage +
+                ", completePercentage=" + completePercentage +
+                ", delayedPercentage=" + delayedPercentage +
+                ", previousBeforePercentage=" + previousBeforePercentage +
+                ", previousProgressPercentage=" + previousProgressPercentage +
+                ", previousCompletePercentage=" + previousCompletePercentage +
+                ", previousDelayedPercentage=" + previousDelayedPercentage +
+                '}';
+    }
 }
 

@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
@@ -45,7 +46,10 @@ public class AuthController {
         user.setName(signupRequest.getName());
         user.setPassword(signupRequest.getPassword());
         user.setUnit(signupRequest.getUnit());
-        user.setProjectId(signupRequest.getProjectId());
+        List<String> projectIds = user.getProjectId();
+        projectIds.add(signupRequest.getProjectId());
+        user.setProjectId(projectIds);
+        //user.setProjectId(signupRequest.getProjectId());
         user.setEmail(signupRequest.getEmail());
         user.setPhoneNumber(signupRequest.getPhoneNumber());
         user.setAdmin(signupRequest.getAdmin());

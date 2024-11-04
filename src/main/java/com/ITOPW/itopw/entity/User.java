@@ -1,16 +1,20 @@
 package com.ITOPW.itopw.entity;
+import io.hypersistence.utils.hibernate.type.array.ListArrayType;
 import lombok.*;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Type;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Entity
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Table(name = "\"user\"")
-public class User {
+public class  User {
 
     @Id
     @Column(name = "user_id", length = 50)
@@ -25,8 +29,15 @@ public class User {
     @Column(name = "unit", length = 50)
     private String unit;
 
-    @Column(name = "project_id", length = 50)
-    private String projectId;
+//    @Column(name = "project_id", length = 50)
+//    private String projectId;
+
+    @Type(ListArrayType.class)
+    @Column(
+            name = "project_id",
+            columnDefinition = "text[]"
+    )
+    private List<String> projectId = new ArrayList<>();
 
     @Column(name = "email", length = 255, nullable = false, unique = true)
     private String email;

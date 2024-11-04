@@ -101,11 +101,11 @@ public class TaskService {
         );
     }
 
-    public List<Task> getTasksByMonth(int year, int month) {
-        LocalDate startDate = LocalDate.of(year, month, 1);
-        LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
-        return taskRepository.findByDueDateBetween(startDate, endDate);
+    public List<Task> getTasksByMonthAndProjectIds(int year, int month, List<String> projectIds) {
+        // 데이터베이스 쿼리를 통해 해당 연도, 월, 프로젝트 ID에 맞는 태스크를 필터링하여 반환
+        return taskRepository.findTasksByMonthAndProjectIds(year, month, projectIds);
     }
+
 
     public ResponseEntity<Response> deleteTask(String taskId) {
         if (taskId == null) {
@@ -162,5 +162,9 @@ public class TaskService {
     public List<Task> searchTasks(String itoProcessId, String assigneeId, LocalDate startDate, LocalDate dueDate, String taskName) {
         Specification<Task> spec = TaskSpecification.buildSpecification(itoProcessId, assigneeId, startDate, dueDate, taskName);
         return taskRepository.findAll(spec);
+    }
+
+    public List<Task> getTasksByProjectIds(List<String> projectIds) {
+        return taskRepository.findByProjectIdIn(projectIds);
     }
 }
