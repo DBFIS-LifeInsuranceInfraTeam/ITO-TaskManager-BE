@@ -3,7 +3,7 @@ name: itopw-back
 on:
   push:
     branches:
-      - main
+      - maino
     tags-ignore:
       - '*'
 
