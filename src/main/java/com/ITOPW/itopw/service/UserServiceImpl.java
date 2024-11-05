@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 //import javax.transaction.Transactional;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -77,7 +79,11 @@ public class UserServiceImpl implements UserService {
 //    }
 
     @Override
-    public List<User> getUsersByProjectId(List<String> projectId) {
-        return userRepository.findByProjectId(projectId);
+    public List<User> getUsersByProjectIdList(List<String> projectIds) {
+
+
+        //List<User> users = userRepository.findByProjectId(projectIdsParam);
+        return userRepository.findByProjectId("{" + String.join(",", projectIds) + "}");
     }
+
 }

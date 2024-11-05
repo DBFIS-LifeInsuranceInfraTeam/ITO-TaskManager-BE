@@ -26,8 +26,9 @@ public class UserController {
     // 여러 프로젝트 ID를 받아 사용자 목록 조회
     @GetMapping
     public ResponseEntity<List<User>> getUsersByProjectIds(@RequestParam List<String> projectIds) {
-        System.out.println(projectIds);
-        List<User> users = userService.getUsersByProjectId(projectIds);
+
+        List<User> users = userService.getUsersByProjectIdList(projectIds);
+        System.out.println(users);
         return ResponseEntity.ok(users);
     }
 

@@ -26,5 +26,5 @@ public interface UserService {
     Optional<User> authenticateUser(String userId, String password);
 
     //List<User> getUsersByProjectId(String projectId);
-    List<User> getUsersByProjectId(List<String> projectId);
+    List<User> getUsersByProjectIdList(List<String> projectIds);
 }
