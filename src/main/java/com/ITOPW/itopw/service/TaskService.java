@@ -5,7 +5,9 @@ import com.ITOPW.itopw.dto.TaskRequest;
 import com.ITOPW.itopw.dto.response.CommentResponseDTO;
 import com.ITOPW.itopw.dto.response.TaskResponseDTO;
 import com.ITOPW.itopw.entity.Task;
+import com.ITOPW.itopw.entity.User;
 import com.ITOPW.itopw.repository.TaskRepository;
+import com.ITOPW.itopw.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,6 +31,9 @@ public class TaskService {
     public TaskService(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
     }
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Transactional
     public ResponseEntity<Response> createTask(TaskRequest taskRequest) {
@@ -93,12 +99,29 @@ public class TaskService {
                 .map(comment -> new CommentResponseDTO(comment.getCommentId(), comment.getCommenterId(),comment.getCommentContent(), comment.getCreateDate(), comment.getLikeCount(), comment.getLikedUsers()))
                 .collect(Collectors.toList());
 
-        return new TaskResponseDTO(
-                task.getTaskId(), task.getProjectId(), task.getTaskName(), task.getDescription(),
-                task.getAssigneeId(), task.getCreatedDate(), task.getStartDate(), task.getDueDate(),
-                task.getFrequencyId(), task.getCommentCount(), task.getStatus(),
-                task.getItoProcessId(), task.getAssigneeConfirmation(), comments
-        );
+        TaskResponseDTO taskDto = new TaskResponseDTO();
+
+        // Task 정보 설정
+        taskDto.setTaskId(task.getTaskId());
+        taskDto.setProjectId(task.getProjectId());
+        taskDto.setTaskName(task.getTaskName());
+        taskDto.setDescription(task.getDescription());
+        taskDto.setCreatedDate(task.getCreatedDate());
+        taskDto.setStartDate(task.getStartDate());
+        taskDto.setDueDate(task.getDueDate());
+        taskDto.setStatus(task.getStatus());
+        taskDto.setItoProcessId(task.getItoProcessId());
+        taskDto.setAssigneeConfirmation(task.getAssigneeConfirmation());
+        taskDto.setComments(comments);
+
+
+        Optional<User> assignee = userRepository.findById(task.getAssigneeId());
+        if (assignee.isPresent()) {
+            taskDto.setAssigneeId(assignee.get().getUserId());
+            taskDto.setAssigneeName(assignee.get().getName());
+            taskDto.setAssigneeProfile(assignee.get().getPhoto());
+        }
+        return taskDto;
     }
 
     public List<Task> getTasksByMonthAndProjectIds(int year, int month, List<String> projectIds) {
@@ -123,7 +146,7 @@ public class TaskService {
 
     public ResponseEntity<Response> updateTask(String taskId, TaskRequest taskRequest) {
         // 필수 필드 유효성 검사
-        if (taskRequest.getTaskId() == null || taskRequest.getProjectId() == null ||
+        if (taskRequest.getProjectId() == null ||
                 taskRequest.getTaskName() == null || taskRequest.getAssigneeId() == null ||
                 taskRequest.getCreatedDate() == null || taskRequest.getStartDate() == null ||
                 taskRequest.getStatus() == null || taskRequest.getItoProcessId() == null ||
@@ -146,7 +169,6 @@ public class TaskService {
             updatedTask.setStartDate(taskRequest.getStartDate());
             updatedTask.setDueDate(taskRequest.getDueDate());
             updatedTask.setFrequencyId(taskRequest.getFrequencyId());
-            updatedTask.setCommentCount(taskRequest.getCommentCount());
             updatedTask.setStatus(taskRequest.getStatus());
             updatedTask.setItoProcessId(taskRequest.getItoProcessId());
             updatedTask.setAssigneeConfirmation(taskRequest.getAssigneeConfirmation());
@@ -164,7 +186,38 @@ public class TaskService {
         return taskRepository.findAll(spec);
     }
 
-    public List<Task> getTasksByProjectIds(List<String> projectIds) {
-        return taskRepository.findByProjectIdIn(projectIds);
+
+    public List<TaskResponseDTO> getTasksByProjectIds(List<String> projectIds) {
+
+        List<Task> tasks = taskRepository.findByProjectIdIn(projectIds);
+        List<TaskResponseDTO> taskDTOs = new ArrayList<>();
+
+        for (Task task : tasks) {
+            Optional<User> assignee = userRepository.findById(task.getAssigneeId());
+            TaskResponseDTO dto = new TaskResponseDTO();
+
+            // Task 정보 설정
+            dto.setTaskId(task.getTaskId());
+            dto.setProjectId(task.getProjectId());
+            dto.setTaskName(task.getTaskName());
+            dto.setDescription(task.getDescription());
+            dto.setCreatedDate(task.getCreatedDate());
+            dto.setStartDate(task.getStartDate());
+            dto.setDueDate(task.getDueDate());
+            dto.setStatus(task.getStatus());
+            dto.setItoProcessId(task.getItoProcessId());
+            dto.setAssigneeConfirmation(task.getAssigneeConfirmation());
+
+            // Assignee 정보 설정
+            if (assignee.isPresent()) {
+                dto.setAssigneeId(assignee.get().getUserId());
+                dto.setAssigneeName(assignee.get().getName());
+                dto.setAssigneeProfile(assignee.get().getPhoto());
+            }
+            taskDTOs.add(dto);
+        }
+        //
+        return taskDTOs;
+        //return taskRepository.findByProjectIdIn(projectIds);
     }
 }

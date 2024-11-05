@@ -7,7 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TaskRequest {
-    private String taskId;
     private String projectId;
     private String taskName;
     private String description;
@@ -16,7 +15,6 @@ public class TaskRequest {
     private LocalDate startDate;
     private LocalDate dueDate;
     private Integer frequencyId;
-    private Integer commentCount;
     private Integer status;
     private String itoProcessId;
     private String assigneeConfirmation;

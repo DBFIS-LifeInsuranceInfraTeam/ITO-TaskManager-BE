@@ -29,8 +29,8 @@ public class TaskController {
     }
 
     @GetMapping("") // 전체 태스크 조회(프로젝트 ID 기반 필터링)
-    public ResponseEntity<List<Task>> getAllTasksByProjectId(@RequestParam List<String> projectIds) {
-        List<Task> tasks = taskService.getTasksByProjectIds(projectIds);
+    public ResponseEntity<List<TaskResponseDTO>> getAllTasksByProjectId(@RequestParam List<String> projectIds) {
+        List<TaskResponseDTO> tasks = taskService.getTasksByProjectIds(projectIds);
         return tasks.isEmpty()
                 ? ResponseEntity.noContent().build() // 204 No Content
                 : ResponseEntity.ok(tasks); // 200 OK
