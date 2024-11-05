@@ -17,9 +17,18 @@ public class UserController {
     }
 
     //프로젝트별 사용자 조회
-    @GetMapping("/{projectId}")
-    public ResponseEntity<List<User>> getUsersByProject(@PathVariable String projectId) {
-        List<User> users = userService.getUsersByProjectId(projectId);
+//    @GetMapping("/{projectId}")
+//    public ResponseEntity<List<User>> getUsersByProject(@PathVariable String projectId) {
+//        List<User> users = userService.getUsersByProjectId(projectId);
+//        return ResponseEntity.ok(users);
+//    }
+
+    // 여러 프로젝트 ID를 받아 사용자 목록 조회
+    @GetMapping
+    public ResponseEntity<List<User>> getUsersByProjectIds(@RequestParam List<String> projectIds) {
+        System.out.println(projectIds);
+        List<User> users = userService.getUsersByProjectId(projectIds);
         return ResponseEntity.ok(users);
     }
+
 }

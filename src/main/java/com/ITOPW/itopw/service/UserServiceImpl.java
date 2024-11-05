@@ -71,8 +71,13 @@ public class UserServiceImpl implements UserService {
         return Optional.empty(); // 인증 실패 시 빈 Optional 반환
     }
 
+//    @Override
+//    public List<User> getUsersByProjectId(String projectId) {
+//        return userRepository.findByProjectId(projectId);
+//    }
+
     @Override
-    public List<User> getUsersByProjectId(String projectId) {
+    public List<User> getUsersByProjectId(List<String> projectId) {
         return userRepository.findByProjectId(projectId);
     }
 }

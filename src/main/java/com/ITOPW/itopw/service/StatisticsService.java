@@ -1,7 +1,10 @@
 package com.ITOPW.itopw.service;
 
+import com.ITOPW.itopw.dto.response.StatisticsResponse;
 import com.ITOPW.itopw.entity.Statistics;
 import com.ITOPW.itopw.repository.StatisticsRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,86 +18,130 @@ import java.util.Optional;
 @Service
 public class StatisticsService {
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     @Autowired
     private StatisticsRepository statisticsRepository;
 
     public StatisticsResponse calculateStatistics(List<String> projectIds, String month) {
+
+
         YearMonth requestedMonth = YearMonth.parse(month);
         String previousMonth = requestedMonth.minusMonths(1).toString(); // 이전 달을 "YYYY-MM" 형식의 문자열로 변환
         String currentMonth = requestedMonth.toString();
 
-        System.out.println(previousMonth);
-        int totalCurrentTasks = 0;
-        int totalPreviousTasks = 0;
-        int totalCurrentBeforeTasks = 0;
-        int totalPreviousBeforeTasks = 0;
+//        int totalCurrentTasks = 0;
+//        int totalPreviousTasks = 0;
+//        int totalCurrentBeforeTasks = 0;
+//        int totalPreviousBeforeTasks = 0;
 
-        for (String projectId : projectIds) {
-            // 현재 월 및 이전 월 데이터 조회
-            Optional<Statistics> currentStats = statisticsRepository.findByProjectIdAndMonth(projectId, currentMonth);
-            Optional<Statistics> previousStats = statisticsRepository.findByProjectIdAndMonth(projectId, "2024-10");
+        List<Statistics> currentStats = statisticsRepository.findByProjectIdAndMonth(projectIds, currentMonth);
+        entityManager.clear();
+        List<Statistics> previousStats = statisticsRepository.findByProjectIdAndMonth(projectIds, previousMonth);
+        entityManager.clear();
 
-            System.out.println("Project ID: " + projectId);
-            System.out.println("Current Month: " + currentMonth + ", Current Stats: " + currentStats);
-            System.out.println("Previous Month: " + previousMonth + ", Previous Stats: " + previousStats);
+        // 현재 월 (11월) 데이터
+        int currentTotalTasks = 0;
+        int currentBeforeTasks = 0;
+        int currentProgressTasks = 0;
+        int currentCompleteTasks = 0;
+        int currentDelayedTasks = 0;
 
-            // 현재 월 데이터 합산
-            if (currentStats.isPresent()) {
-                Statistics current = currentStats.get();
-                totalCurrentTasks += current.getTotalTasks();
-                totalCurrentBeforeTasks += current.getTotalTasks() * current.getBeforePercentage().divide(BigDecimal.valueOf(100)).intValue();
-            }
+        for (Statistics stat : currentStats) {
+            currentTotalTasks += stat.getTotalTasks();
+            currentBeforeTasks += stat.getTotalTasks() * stat.getBeforePercentage().divide(BigDecimal.valueOf(100)).intValue();
+            currentProgressTasks += stat.getTotalTasks() * stat.getProgressPercentage().divide(BigDecimal.valueOf(100)).intValue();
+            currentCompleteTasks += stat.getTotalTasks() * stat.getCompletePercentage().divide(BigDecimal.valueOf(100)).intValue();
+            currentDelayedTasks += stat.getTotalTasks() * stat.getDelayedPercentage().divide(BigDecimal.valueOf(100)).intValue();
+        }
 
-            // 이전 월 데이터 합산
-            if (previousStats.isPresent()) {
-                Statistics previous = previousStats.get();
-                totalPreviousTasks += previous.getTotalTasks();
-                totalPreviousBeforeTasks += previous.getTotalTasks() * previous.getBeforePercentage().divide(BigDecimal.valueOf(100)).intValue();
-            }
+        // 이전 월 (10월) 데이터
+        int previousTotalTasks = 0;
+        int previousBeforeTasks = 0;
+        int previousProgressTasks = 0;
+        int previousCompleteTasks = 0;
+        int previousDelayedTasks = 0;
+
+        for (Statistics stat : previousStats) {
+            previousTotalTasks += stat.getTotalTasks();
+            previousBeforeTasks += stat.getTotalTasks() * stat.getBeforePercentage().divide(BigDecimal.valueOf(100)).intValue();
+            previousProgressTasks += stat.getTotalTasks() * stat.getProgressPercentage().divide(BigDecimal.valueOf(100)).intValue();
+            previousCompleteTasks += stat.getTotalTasks() * stat.getCompletePercentage().divide(BigDecimal.valueOf(100)).intValue();
+            previousDelayedTasks += stat.getTotalTasks() * stat.getDelayedPercentage().divide(BigDecimal.valueOf(100)).intValue();
         }
 
         // 비율 계산
-        BigDecimal currentBeforePercentage = totalCurrentTasks > 0
-                ? BigDecimal.valueOf((double) totalCurrentBeforeTasks / totalCurrentTasks).setScale(2, RoundingMode.HALF_UP)
-                : BigDecimal.ZERO;
+        BigDecimal currentBeforePercentage = currentTotalTasks > 0
+                ? BigDecimal.valueOf((double) currentBeforeTasks / currentTotalTasks).setScale(2, RoundingMode.HALF_UP)
+                : BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+        BigDecimal currentProgressPercentage = currentTotalTasks > 0
+                ? BigDecimal.valueOf((double) currentProgressTasks / currentTotalTasks).setScale(2, RoundingMode.HALF_UP)
+                : BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+        BigDecimal currentCompletePercentage = currentTotalTasks > 0
+                ? BigDecimal.valueOf((double) currentCompleteTasks / currentTotalTasks).setScale(2, RoundingMode.HALF_UP)
+                : BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+        BigDecimal currentDelayedPercentage = currentTotalTasks > 0
+                ? BigDecimal.valueOf((double) currentDelayedTasks / currentTotalTasks).setScale(2, RoundingMode.HALF_UP)
+                : BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
 
-        BigDecimal previousBeforePercentage = totalPreviousTasks > 0
-                ? BigDecimal.valueOf((double) totalPreviousBeforeTasks / totalPreviousTasks).setScale(2, RoundingMode.HALF_UP)
-                : BigDecimal.ZERO;
+        BigDecimal previousBeforePercentage = previousTotalTasks > 0
+                ? BigDecimal.valueOf((double) previousBeforeTasks / previousTotalTasks).setScale(2, RoundingMode.HALF_UP)
+                : BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+        BigDecimal previousProgressPercentage = previousTotalTasks > 0
+                ? BigDecimal.valueOf((double) previousProgressTasks / previousTotalTasks).setScale(2, RoundingMode.HALF_UP)
+                : BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+        BigDecimal previousCompletePercentage = previousTotalTasks > 0
+                ? BigDecimal.valueOf((double) previousCompleteTasks / previousTotalTasks).setScale(2, RoundingMode.HALF_UP)
+                : BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+        BigDecimal previousDelayedPercentage = previousTotalTasks > 0
+                ? BigDecimal.valueOf((double) previousDelayedTasks / previousTotalTasks).setScale(2, RoundingMode.HALF_UP)
+                : BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
 
+        // 상태 증가율 계산
         BigDecimal beforeIncrease = currentBeforePercentage.subtract(previousBeforePercentage).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal progressIncrease = currentProgressPercentage.subtract(previousProgressPercentage).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal completeIncrease = currentCompletePercentage.subtract(previousCompletePercentage).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal delayedIncrease = currentDelayedPercentage.subtract(previousDelayedPercentage).setScale(2, RoundingMode.HALF_UP);
 
-        // 통합된 통계 생성
+        // 최종 통합된 통계 생성
         Statistics combinedStatistics = Statistics.builder()
-                .projectId(null) // 통합 결과로 개별 projectId는 설정하지 않음
-                .month(currentMonth)
-                .totalTasks(totalCurrentTasks)
+                .projectId(projectIds.toString())
+                .month(month)
+                .totalTasks(currentTotalTasks)
                 .beforePercentage(currentBeforePercentage.multiply(BigDecimal.valueOf(100)))
+                .progressPercentage(currentProgressPercentage.multiply(BigDecimal.valueOf(100)))
+                .completePercentage(currentCompletePercentage.multiply(BigDecimal.valueOf(100)))
+                .delayedPercentage(currentDelayedPercentage.multiply(BigDecimal.valueOf(100)))
+                .previousBeforePercentage(previousBeforePercentage.multiply(BigDecimal.valueOf(100)))
+                .previousProgressPercentage(previousProgressPercentage.multiply(BigDecimal.valueOf(100)))
+                .previousCompletePercentage(previousCompletePercentage.multiply(BigDecimal.valueOf(100)))
+                .previousDelayedPercentage(previousDelayedPercentage.multiply(BigDecimal.valueOf(100)))
                 .build();
 
-        // 최종 결과 출력
-        System.out.println("Combined Statistics for " + month + ": " + combinedStatistics);
-        System.out.println("Before Increase: " + beforeIncrease);
-
-        // 필요에 따라 통합된 통계를 반환하거나 추가 로직을 수행
-        return new StatisticsResponse(combinedStatistics, beforeIncrease, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
+        return new StatisticsResponse(combinedStatistics, beforeIncrease.multiply(BigDecimal.valueOf(100)), progressIncrease.multiply(BigDecimal.valueOf(100)),
+                completeIncrease.multiply(BigDecimal.valueOf(100)), delayedIncrease.multiply(BigDecimal.valueOf(100)));
     }
 
+//        // 출력
+//        System.out.println("11월 Before 상태 비율: " + currentBeforePercentage.multiply(BigDecimal.valueOf(100)) + "%");
+//        System.out.println("10월 Before 상태 비율: " + previousBeforePercentage.multiply(BigDecimal.valueOf(100)) + "%");
+//        System.out.println("Before 상태 증가율: " + beforeIncrease.multiply(BigDecimal.valueOf(100)) + "%");
+//
+//        System.out.println("11월 Progress 상태 비율: " + currentProgressPercentage.multiply(BigDecimal.valueOf(100)) + "%");
+//        System.out.println("10월 Progress 상태 비율: " + previousProgressPercentage.multiply(BigDecimal.valueOf(100)) + "%");
+//        System.out.println("Progress 상태 증가율: " + progressIncrease.multiply(BigDecimal.valueOf(100)) + "%");
+//
+//        System.out.println("11월 Complete 상태 비율: " + currentCompletePercentage.multiply(BigDecimal.valueOf(100)) + "%");
+//        System.out.println("10월 Complete 상태 비율: " + previousCompletePercentage.multiply(BigDecimal.valueOf(100)) + "%");
+//        System.out.println("Complete 상태 증가율: " + completeIncrease.multiply(BigDecimal.valueOf(100)) + "%");
+//
+//        System.out.println("11월 Delayed 상태 비율: " + currentDelayedPercentage.multiply(BigDecimal.valueOf(100)) + "%");
+//        System.out.println("10월 Delayed 상태 비율: " + previousDelayedPercentage.multiply(BigDecimal.valueOf(100)) + "%");
+//        System.out.println("Delayed 상태 증가율: " + delayedIncrease.multiply(BigDecimal.valueOf(100)) + "%");
 
-    public static class StatisticsResponse {
-        public final Statistics statistics;
-        public final BigDecimal beforeIncrease;
-        public final BigDecimal progressIncrease;
-        public final BigDecimal completeIncrease;
-        public final BigDecimal delayedIncrease;
 
-        public StatisticsResponse(Statistics statistics, BigDecimal beforeIncrease, BigDecimal progressIncrease, BigDecimal completeIncrease, BigDecimal delayedIncrease) {
-            this.statistics = statistics;
-            this.beforeIncrease = beforeIncrease;
-            this.progressIncrease = progressIncrease;
-            this.completeIncrease = completeIncrease;
-            this.delayedIncrease = delayedIncrease;
-        }
-    }
+
+
+
 }
-

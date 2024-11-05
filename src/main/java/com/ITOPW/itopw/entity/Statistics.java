@@ -1,13 +1,9 @@
 package com.ITOPW.itopw.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @Entity
 @Builder
@@ -15,6 +11,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Getter
 @Setter
+@Cacheable(false) // 엔티티 레벨에서 2차 캐시 비활성화
 @Table(name = "statistics_view")
 public class Statistics {
 

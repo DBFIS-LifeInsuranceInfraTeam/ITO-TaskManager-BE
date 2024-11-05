@@ -1,5 +1,6 @@
 package com.ITOPW.itopw.controller;
 
+import com.ITOPW.itopw.dto.response.StatisticsResponse;
 import com.ITOPW.itopw.entity.Statistics;
 import com.ITOPW.itopw.service.StatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,9 @@ public class StatisticsController {
     public ResponseEntity<?> getStatisticsByProjectIdAndMonth(
             @RequestParam List<String> projectIds,
             @RequestParam(required = false) String month) {
-        StatisticsService.StatisticsResponse response = statisticsService.calculateStatistics(projectIds, month);
+
+        StatisticsResponse response = statisticsService.calculateStatistics(projectIds, month);
+
         return ResponseEntity.ok(response);
     }
 

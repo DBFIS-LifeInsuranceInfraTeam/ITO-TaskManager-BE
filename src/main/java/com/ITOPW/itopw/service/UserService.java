@@ -25,5 +25,6 @@ public interface UserService {
     // 로그인 인증
     Optional<User> authenticateUser(String userId, String password);
 
-    List<User> getUsersByProjectId(String projectId);
+    //List<User> getUsersByProjectId(String projectId);
+    List<User> getUsersByProjectId(List<String> projectId);
 }
