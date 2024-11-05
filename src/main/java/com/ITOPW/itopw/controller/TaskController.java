@@ -6,6 +6,9 @@ import com.ITOPW.itopw.dto.response.BaseResponseDTO;
 import com.ITOPW.itopw.dto.response.TaskResponseDTO;
 import com.ITOPW.itopw.entity.Task;
 import com.ITOPW.itopw.service.TaskService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,8 +32,15 @@ public class TaskController {
     }
 
     @GetMapping("") // 전체 태스크 조회(프로젝트 ID 기반 필터링)
-    public ResponseEntity<List<TaskResponseDTO>> getAllTasksByProjectId(@RequestParam List<String> projectIds) {
-        List<TaskResponseDTO> tasks = taskService.getTasksByProjectIds(projectIds);
+    public ResponseEntity<Page<TaskResponseDTO>> getAllTasksByProjectId(
+            @RequestParam List<String> projectIds,
+            @RequestParam int page,
+            @RequestParam int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<TaskResponseDTO> tasks = taskService.getTasksByProjectIds(projectIds, pageable);
+        //List<TaskResponseDTO> tasks = taskService.getTasksByProjectIds(projectIds);
+
         return tasks.isEmpty()
                 ? ResponseEntity.noContent().build() // 204 No Content
                 : ResponseEntity.ok(tasks); // 200 OK

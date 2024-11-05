@@ -1,6 +1,8 @@
 package com.ITOPW.itopw.repository;
 
 import com.ITOPW.itopw.entity.Task;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,7 +26,9 @@ public interface TaskRepository extends JpaRepository<Task, Integer>, JpaSpecifi
 
 
     List<Task> findByProjectId(String projectId);
-    List<Task> findByProjectIdIn(List<String> projectIds);
+
+    //List<Task> findByProjectIdIn(List<String> projectIds);
+    Page<Task> findByProjectIdIn(List<String> projectIds, Pageable pageable);
 
     @Query("SELECT t FROM Task t WHERE YEAR(t.dueDate) = :year AND MONTH(t.dueDate) = :month AND t.projectId IN :projectIds")
     List<Task> findTasksByMonthAndProjectIds(@Param("year") int year, @Param("month") int month, @Param("projectIds") List<String> projectIds);
