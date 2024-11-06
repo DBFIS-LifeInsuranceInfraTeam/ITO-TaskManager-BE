@@ -6,7 +6,9 @@ import com.ITOPW.itopw.dto.response.BaseResponseDTO;
 import com.ITOPW.itopw.dto.response.LoginResponseDTO;
 import com.ITOPW.itopw.dto.response.SignupResponseDTO;
 import com.ITOPW.itopw.dto.response.UserInfoResponseDto;
+import com.ITOPW.itopw.entity.Project;
 import com.ITOPW.itopw.entity.User;
+import com.ITOPW.itopw.repository.ProjectRepository;
 import com.ITOPW.itopw.service.UserService;
 import com.ITOPW.itopw.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,13 @@ public class AuthController {
 
     @Autowired
     private UserService userService;
+
+    private final ProjectRepository projectRepository;
+
+    @Autowired
+    public AuthController(ProjectRepository projectRepository) {
+        this.projectRepository = projectRepository;
+    }
 
     @Autowired
     private JwtUtil jwtUtil; // JwtUtil 주입
@@ -106,5 +115,11 @@ public class AuthController {
             BaseResponseDTO<LoginResponseDTO> response = new BaseResponseDTO<>(401, "Unauthorized", "ID 또는 비밀번호가 잘못되었습니다.");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
+    }
+
+    @GetMapping("/projects")
+    public ResponseEntity<List<Project>> getAllProjects() {
+        List<Project> projects = projectRepository.findAll();
+        return ResponseEntity.ok(projects); // 200 OK 상태와 함께 프로젝트 리스트 반환
     }
 }

@@ -4,6 +4,7 @@ import com.ITOPW.itopw.entity.User;
 import com.ITOPW.itopw.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 //import javax.transaction.Transactional;
@@ -80,10 +81,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> getUsersByProjectIdList(List<String> projectIds) {
-
-
         //List<User> users = userRepository.findByProjectId(projectIdsParam);
         return userRepository.findByProjectId("{" + String.join(",", projectIds) + "}");
+    }
+
+
+    @Override
+    public List<User> getUsersByProjectIdListAndUnit(List<String> projectIds, String unit) {
+        //List<User> users = userRepository.findByProjectId(projectIdsParam);
+        return userRepository.findByProjectIdAndUnit("{" + String.join(",", projectIds) + "}", unit);
     }
 
 }

@@ -1,5 +1,6 @@
 package com.ITOPW.itopw.entity;
 
+import com.ITOPW.itopw.dto.TaskRequest;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -60,4 +61,19 @@ public class Task {
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnore // 전체 조회 시 이 필드를 응답에 포함하지 않음
     private List<Comment> comments;
+
+
+    public Task(TaskRequest taskRequest) {
+        this.projectId = taskRequest.getProjectId();
+        this.taskName = taskRequest.getTaskName();
+        this.description = taskRequest.getDescription();
+        this.assigneeId = taskRequest.getAssigneeId();
+        this.createdDate = taskRequest.getCreatedDate();
+        this.startDate = taskRequest.getStartDate();
+        this.dueDate = taskRequest.getDueDate();
+        this.frequencyId = taskRequest.getFrequencyId();
+        this.status = taskRequest.getStatus();
+        this.itoProcessId = taskRequest.getItoProcessId();
+        this.assigneeConfirmation = taskRequest.getAssigneeConfirmation();
+    }
 }

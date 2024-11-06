@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -28,7 +29,14 @@ public class TaskController {
 
     @PostMapping
     public ResponseEntity<Response> createTask(@RequestBody TaskRequest taskRequest) {
-        return taskService.createTask(taskRequest);
+        if (taskRequest.isRecurring()) {
+            List<Task> recurringTasks = taskService.createRecurringTasks(taskRequest);
+            return recurringTasks.isEmpty()
+                    ? ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Response(400, "Bad Request", "주기적 업무 생성 실패", null))
+                    : ResponseEntity.ok(new Response(201, "Created", "주기적 업무가 성공적으로 생성되었습니다.", recurringTasks));
+        } else {
+            return taskService.createTask(taskRequest);
+        }
     }
 
     @GetMapping("") // 전체 태스크 조회(프로젝트 ID 기반 필터링)
@@ -79,13 +87,18 @@ public class TaskController {
 
     // 업무 검색(ito프로세스, 업무명, 기간, 담당자)
     @GetMapping("/search")
-    public List<Task> searchTasks(
+    public List<TaskResponseDTO> searchTasks(
+            @RequestParam List<String> projectIds,
             @RequestParam(required = false) String itoProcessId,
+            @RequestParam(required = false) String unit,
             @RequestParam(required = false) String assigneeId,
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate dueDate,
             @RequestParam(required = false) String taskName
     ) {
-        return taskService.searchTasks(itoProcessId, assigneeId, startDate, dueDate, taskName);
+        return taskService.searchTasks(projectIds, itoProcessId, unit, assigneeId, startDate, dueDate, taskName);
     }
+
+
 }
+

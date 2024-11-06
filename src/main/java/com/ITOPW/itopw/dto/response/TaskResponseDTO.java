@@ -44,6 +44,17 @@ public class TaskResponseDTO {
         this.comments = comments;
     }
 
+    public TaskResponseDTO(String taskId, String taskName, String assigneeId,String assigneeName, String assigneeProfile, LocalDate dueDate, Integer status, String itoProcessId) {
+        this.taskId = taskId;
+        this.taskName = taskName;
+        this.assigneeId = assigneeId;
+        this.assigneeName = assigneeName;
+        this.assigneeProfile = assigneeProfile;
+        this.dueDate = dueDate;
+        this.status = status;
+        this.itoProcessId = itoProcessId;
+    }
+
     public TaskResponseDTO(String taskId, String projectId, String taskName, String description, String assigneeId, String assigneeName, String assigneeProfile, LocalDate createdDate, LocalDate startDate, LocalDate dueDate, Integer frequencyId, Integer commentCount, Integer status, String itoProcessId, String assigneeConfirmation, List<CommentResponseDTO> comments) {
         this.taskId = taskId;
         this.projectId = projectId;

@@ -27,4 +27,6 @@ public interface UserService {
 
     //List<User> getUsersByProjectId(String projectId);
     List<User> getUsersByProjectIdList(List<String> projectIds);
+
+    List<User> getUsersByProjectIdListAndUnit(List<String> projectIds, String unit);
 }

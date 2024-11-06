@@ -16,7 +16,7 @@ public class Project {
     @Id // 기본 키로 설정
     //@GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "project_id", nullable = false)
-    private Integer projectId;
+    private String projectId;
 
     @Column(name = "name", nullable = false)
     private String name;
