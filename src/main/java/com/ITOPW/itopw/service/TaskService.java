@@ -15,6 +15,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -185,12 +186,45 @@ public class TaskService {
     }
 
 
-    @Transactional(readOnly = true)
-    public List<TaskResponseDTO> searchTasks(List<String> projectIds, String itoProcessId, String unit,String assigneeId, LocalDate startDate, LocalDate dueDate, String taskName) {
-        Specification<Task> spec = taskSpecification.buildSpecification(projectIds, itoProcessId, unit, assigneeId, startDate, dueDate, taskName);
-        List<Task> tasks = taskRepository.findAll(spec);
+//    @Transactional(readOnly = true)
+//    public List<TaskResponseDTO> searchTasks(List<String> projectIds, String itoProcessId, String unit,String assigneeId, LocalDate startDate, LocalDate dueDate, String taskName) {
+//        Specification<Task> spec = taskSpecification.buildSpecification(projectIds, itoProcessId, unit, assigneeId, startDate, dueDate, taskName);
+//        //List<Task> tasks = taskRepository.findAll(spec);
+//
+//        Page<Task> tasks = taskRepository.findAll(spec);
+//
+//
+//            return tasks.stream().map(task -> {
+//            TaskResponseDTO dto = new TaskResponseDTO();
+//
+//            // Task 정보 설정
+//            dto.setTaskId(task.getTaskId());
+//            dto.setTaskName(task.getTaskName());
+//            dto.setAssigneeId(task.getAssigneeId());
+//            dto.setDueDate(task.getDueDate());
+//            dto.setStatus(task.getStatus());
+//
+//            // Assignee 정보 추가 설정
+//            Optional<User> assignee = userRepository.findById(task.getAssigneeId());
+//            if (assignee.isPresent()) {
+//                dto.setAssigneeName(assignee.get().getName());
+//                dto.setAssigneeProfile(assignee.get().getPhoto());
+//            }
+//
+//            return dto;
+//        }).collect(Collectors.toList());
+//    }
 
-        return tasks.stream().map(task -> {
+
+    @Transactional(readOnly = true)
+    public Page<TaskResponseDTO> searchTasks(List<String> projectIds, String itoProcessId, String unit, String assigneeId, LocalDate startDate, LocalDate dueDate, String taskName, Pageable pageable) {
+        Specification<Task> spec = taskSpecification.buildSpecification(projectIds, itoProcessId, unit, assigneeId, startDate, dueDate, taskName);
+
+        // 페이징된 Task 목록을 불러옵니다.
+        Page<Task> tasks = taskRepository.findAll(spec, pageable);
+
+        // Task를 TaskResponseDTO로 변환하여 반환합니다.
+        return tasks.map(task -> {
             TaskResponseDTO dto = new TaskResponseDTO();
 
             // Task 정보 설정
@@ -202,49 +236,18 @@ public class TaskService {
 
             // Assignee 정보 추가 설정
             Optional<User> assignee = userRepository.findById(task.getAssigneeId());
-            if (assignee.isPresent()) {
-                dto.setAssigneeName(assignee.get().getName());
-                dto.setAssigneeProfile(assignee.get().getPhoto());
-            }
+            assignee.ifPresent(user -> {
+                dto.setAssigneeName(user.getName());
+                dto.setAssigneeProfile(user.getPhoto());
+            });
 
             return dto;
-        }).collect(Collectors.toList());
+        });
     }
-
 
     public Page<TaskResponseDTO> getTasksByProjectIds(List<String> projectIds, Pageable pageable) {
 
         Page<Task> tasks = taskRepository.findByProjectIdIn(projectIds, pageable);
-//        List<TaskResponseDTO> taskDTOs = new ArrayList<>();
-//
-//        for (Task task : tasks) {
-//            Optional<User> assignee = userRepository.findById(task.getAssigneeId());
-//            TaskResponseDTO dto = new TaskResponseDTO();
-//
-//            // Task 정보 설정
-//            dto.setTaskId(task.getTaskId());
-//            dto.setProjectId(task.getProjectId());
-//            dto.setTaskName(task.getTaskName());
-//            dto.setDescription(task.getDescription());
-//            dto.setCreatedDate(task.getCreatedDate());
-//            dto.setStartDate(task.getStartDate());
-//            dto.setDueDate(task.getDueDate());
-//            dto.setStatus(task.getStatus());
-//            dto.setItoProcessId(task.getItoProcessId());
-//            dto.setAssigneeConfirmation(task.getAssigneeConfirmation());
-//
-//            // Assignee 정보 설정
-//            if (assignee.isPresent()) {
-//                dto.setAssigneeId(assignee.get().getUserId());
-//                dto.setAssigneeName(assignee.get().getName());
-//                dto.setAssigneeProfile(assignee.get().getPhoto());
-//            }
-//            taskDTOs.add(dto);
-//        }
-//        //
-//        return taskDTOs;
-        //return taskRepository.findByProjectIdIn(projectIds);
-
         Page<TaskResponseDTO> taskDTOs = tasks.map(task -> {
             Optional<User> assignee = userRepository.findById(task.getAssigneeId());
             TaskResponseDTO dto = new TaskResponseDTO();
@@ -287,9 +290,8 @@ public class TaskService {
         boolean hasEndDate = taskRequest.isHasEndDate(); // 종료일 여부
         int frequencyInterval = taskRequest.getFrequencyInterval(); // 주기 간격
 
-        System.out.println(taskRequest.getFrequencyType());
         // 반복을 종료할 기준 설정
-        LocalDate limitDate = hasEndDate ? endDate : startDate.plusYears(1);
+        LocalDate limitDate = hasEndDate ? endDate : LocalDate.of(startDate.getYear() + 1, 12, 31);
 
         switch (taskRequest.getFrequencyType()) {
             case "daily":
@@ -312,40 +314,58 @@ public class TaskService {
                 throw new IllegalArgumentException("Invalid frequency type");
         }
 
-        return recurringTasks;
+        // DB에 저장
+        return taskRepository.saveAll(recurringTasks);
     }
 
     private List<Task> createDailyTasks(TaskRequest taskRequest, LocalDate startDate, LocalDate limitDate, int interval) {
         List<Task> tasks = new ArrayList<>();
+        String baseTaskId = "TASK_" + UUID.randomUUID().toString().substring(0, 8); // 공통 접두사 생성
+
+        int instanceNumber = 1;
         while (startDate.isBefore(limitDate) || startDate.equals(limitDate)) {
-            // 새로운 Task 객체를 만들고, 고유한 taskId 생성
+
             Task task = new Task(taskRequest);
-            task.setTaskId(UUID.randomUUID().toString()); // 새로운 UUID로 taskId 설정
+
+            // 고유한 taskId 생성
+            String uniqueTaskId = baseTaskId + "_" + instanceNumber;
+            task.setTaskId(uniqueTaskId);
+
             task.setStartDate(startDate);
             task.setDueDate(startDate); // 종료일을 시작일과 동일하게 설정
             tasks.add(task);
 
             // 다음 반복 주기 시작일을 설정
             startDate = startDate.plusDays(interval);
+            instanceNumber++; // 인스턴스 번호 증가
         }
-        System.out.println(tasks.toString());
+
         return tasks;
     }
 
     private List<Task> createWeeklyTasks(TaskRequest taskRequest, LocalDate startDate, LocalDate limitDate, int interval) {
         List<Task> tasks = new ArrayList<>();
-        DayOfWeek dayOfWeek = taskRequest.getWeeklyDay(); // 사용자가 선택한 요일 (월, 화 등)
+        //DayOfWeek dayOfWeek = taskRequest.getWeeklyDay(); // 사용자가 선택한 요일 (월, 화 등)
 
+        String baseTaskId = "TASK_" + UUID.randomUUID().toString().substring(0, 8); // 공통 접두사 생성
+
+        int instanceNumber = 1;
         while (startDate.isBefore(limitDate) || startDate.equals(limitDate)) {
-            LocalDate nextDate = getNextWeekday(startDate, dayOfWeek);
+            for (DayOfWeek dayOfWeek : taskRequest.getWeeklyDay()) { // 선택된 요일 각각에 대해 반복
+                LocalDate nextDate = getNextWeekday(startDate, dayOfWeek);
+                if (nextDate.isAfter(limitDate)) continue;
 
-            if (nextDate.isAfter(limitDate)) break;
+                Task task = new Task(taskRequest);
 
-            Task task = new Task(taskRequest);
-            task.setStartDate(startDate);
-            task.setDueDate(startDate);
-            tasks.add(task);
+                // 고유한 taskId 생성
+                String uniqueTaskId = baseTaskId + "_" + instanceNumber;
+                task.setTaskId(uniqueTaskId);
+                task.setStartDate(nextDate);
+                task.setDueDate(nextDate);
+                tasks.add(task);
 
+                instanceNumber++; // 인스턴스 번호 증가
+            }
             startDate = startDate.plusWeeks(interval);
         }
         return tasks;
@@ -358,24 +378,40 @@ public class TaskService {
 
     private List<Task> createMonthlyTasks(TaskRequest taskRequest, LocalDate startDate, LocalDate limitDate, int interval) {
         List<Task> tasks = new ArrayList<>();
-        int dayOfMonth = taskRequest.getMonthlyDayOfMonth(); // 사용자가 선택한 날짜(6일, 첫 번째 수요일 등)
-        int weekOfMonth = taskRequest.getMonthlyWeekOfMonth();
-        DayOfWeek dayOfWeek = taskRequest.getMonthlyDayOfWeek();
 
+
+        String baseTaskId = "TASK_" + UUID.randomUUID().toString().substring(0, 8); // 공통 접두사 생성
+
+        int instanceNumber = 1;
         while (startDate.isBefore(limitDate) || startDate.equals(limitDate)) {
-            LocalDate nextDate = (dayOfMonth > 0) ? startDate.withDayOfMonth(dayOfMonth) : getMonthlyWeekday(startDate, weekOfMonth, dayOfWeek);
+            LocalDate nextDate;
+
+            if (taskRequest.getMonthlyDayOfMonth() != null) {
+                // 1. 매월 특정 날짜 반복 (예: 매월 20일)
+                nextDate = startDate.withDayOfMonth(taskRequest.getMonthlyDayOfMonth());
+            } else if (taskRequest.getMonthlyWeekOfMonth() != null && taskRequest.getMonthlyDayOfWeek() != null) {
+                // 2. 매월 특정 주차의 특정 요일 반복 (예: 매월 2번째 수요일)
+                nextDate = getMonthlyWeekday(startDate, taskRequest.getMonthlyWeekOfMonth(), taskRequest.getMonthlyDayOfWeek());
+            } else {
+                throw new IllegalArgumentException("유효하지 않은 월간 반복 설정입니다.");
+            }
 
             if (nextDate.isAfter(limitDate)) break;
 
             Task task = new Task(taskRequest);
-            task.setStartDate(startDate);
-            task.setDueDate(startDate);
+            // 고유한 taskId 생성
+            String uniqueTaskId = baseTaskId + "_" + instanceNumber;
+            task.setTaskId(uniqueTaskId);
+            task.setStartDate(nextDate);
+            task.setDueDate(nextDate);
             tasks.add(task);
 
             startDate = startDate.plusMonths(interval);
+            instanceNumber++; // 인스턴스 번호 증가
         }
         return tasks;
     }
+
 
     private LocalDate getMonthlyWeekday(LocalDate date, int weekOfMonth, DayOfWeek dayOfWeek) {
         LocalDate firstDayOfMonth = date.withDayOfMonth(1);
@@ -386,28 +422,61 @@ public class TaskService {
 
     private List<Task> createYearlyTasks(TaskRequest taskRequest, LocalDate startDate, LocalDate limitDate) {
         List<Task> tasks = new ArrayList<>();
-        int monthOfYear = taskRequest.getYearlyMonth();
-        int dayOfMonth = taskRequest.getYearlyDayOfMonth();
-        int weekOfMonth = taskRequest.getYearlyWeekOfMonth();
-        DayOfWeek dayOfWeek = taskRequest.getYearlyDayOfWeek();
+        Integer monthOfYear = taskRequest.getYearlyMonth();      // 매년 월 (예: 11월)
+        Integer dayOfMonth = taskRequest.getYearlyDayOfMonth();  // 매년 특정 일자 (예: 6일)
+        Integer weekOfMonth = taskRequest.getYearlyWeekOfMonth();// 매년 몇 번째 주
+        DayOfWeek dayOfWeek = taskRequest.getYearlyDayOfWeek();  // 매년 요일
 
-        while (startDate.isBefore(limitDate) || startDate.equals(limitDate)) {
-            LocalDate nextDate = (dayOfMonth > 0) ? startDate.withMonth(monthOfYear).withDayOfMonth(dayOfMonth)
-                    : getYearlyWeekday(startDate.withMonth(monthOfYear), weekOfMonth, dayOfWeek);
+
+        String baseTaskId = "TASK_" + UUID.randomUUID().toString().substring(0, 8); // 공통 접두사 생성
+
+        int instanceNumber = 1;
+        // 시작일을 설정된 월로 변경하여 초기화
+        LocalDate currentDate = startDate.withMonth(monthOfYear).withDayOfMonth(1);
+
+        while (currentDate.isBefore(limitDate) || currentDate.equals(limitDate)) {
+            LocalDate nextDate;
+
+            if (dayOfMonth != null) {
+                // 케이스 1: 매년 같은 월의 특정 일자 (예: 11월 6일)
+                nextDate = currentDate.withDayOfMonth(dayOfMonth);
+            } else if (weekOfMonth != null && dayOfWeek != null) {
+                // 케이스 2: 매년 같은 월의 특정 주와 요일 (예: 11월 첫 번째 수요일)
+                nextDate = getYearlyWeekday(currentDate, weekOfMonth, dayOfWeek);
+            } else {
+                throw new IllegalArgumentException("유효하지 않은 연간 반복 설정입니다.");
+            }
 
             if (nextDate.isAfter(limitDate)) break;
 
             Task task = new Task(taskRequest);
-            task.setStartDate(startDate);
-            task.setDueDate(startDate);
+            String uniqueTaskId = baseTaskId + "_" + instanceNumber; // 고유한 taskId 생성
+            task.setTaskId(uniqueTaskId);
+            task.setStartDate(nextDate);
+            task.setDueDate(nextDate);
             tasks.add(task);
 
-            startDate = startDate.plusYears(1);
+            // 다음 해의 첫 날로 이동
+            currentDate = currentDate.plusYears(1).withMonth(monthOfYear).withDayOfMonth(1);
+            System.out.println(currentDate);
+            instanceNumber++;
         }
+
         return tasks;
     }
 
     private LocalDate getYearlyWeekday(LocalDate date, int weekOfMonth, DayOfWeek dayOfWeek) {
-        return getMonthlyWeekday(date, weekOfMonth, dayOfWeek);
+        LocalDate firstDayOfMonth = date.withDayOfMonth(1);
+        int dayOfWeekValue = dayOfWeek.getValue() - firstDayOfMonth.getDayOfWeek().getValue();
+        dayOfWeekValue = (dayOfWeekValue < 0) ? dayOfWeekValue + 7 : dayOfWeekValue;
+        return firstDayOfMonth.plusDays(dayOfWeekValue + 7 * (weekOfMonth - 1));
+    }
+
+
+    // 매일 자정에 실행 (cron 표현식 사용)
+    @Scheduled(cron = "0 0 0 * * *")
+    public void updateTaskStatus() {
+        LocalDate today = LocalDate.now();
+        taskRepository.updateStatusForPastTasks(today);
     }
 }

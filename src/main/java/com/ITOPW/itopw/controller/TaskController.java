@@ -85,18 +85,31 @@ public class TaskController {
         return taskService.updateTask(id, taskRequest);
     }
 
+
+
+
     // 업무 검색(ito프로세스, 업무명, 기간, 담당자)
     @GetMapping("/search")
-    public List<TaskResponseDTO> searchTasks(
+    public ResponseEntity<Page<TaskResponseDTO>> searchTasks(
             @RequestParam List<String> projectIds,
             @RequestParam(required = false) String itoProcessId,
             @RequestParam(required = false) String unit,
             @RequestParam(required = false) String assigneeId,
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate dueDate,
-            @RequestParam(required = false) String taskName
+            @RequestParam(required = false) String taskName,
+            @RequestParam int page,
+            @RequestParam int size
     ) {
-        return taskService.searchTasks(projectIds, itoProcessId, unit, assigneeId, startDate, dueDate, taskName);
+
+        System.out.println(projectIds.toString());
+        Pageable pageable = PageRequest.of(page, size);
+        Page<TaskResponseDTO> tasks = taskService.searchTasks(projectIds, itoProcessId, unit, assigneeId, startDate, dueDate, taskName, pageable);
+        //List<TaskResponseDTO> tasks = taskService.getTasksByProjectIds(projectIds);
+
+        return tasks.isEmpty()
+                ? ResponseEntity.noContent().build() // 204 No Content
+                : ResponseEntity.ok(tasks); // 200 OK
     }
 
 

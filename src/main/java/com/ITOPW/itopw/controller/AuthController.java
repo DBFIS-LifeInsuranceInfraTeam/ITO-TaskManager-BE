@@ -2,10 +2,7 @@ package com.ITOPW.itopw.controller;
 
 import com.ITOPW.itopw.dto.request.LoginRequestDTO;
 import com.ITOPW.itopw.dto.request.SignupRequestDTO;
-import com.ITOPW.itopw.dto.response.BaseResponseDTO;
-import com.ITOPW.itopw.dto.response.LoginResponseDTO;
-import com.ITOPW.itopw.dto.response.SignupResponseDTO;
-import com.ITOPW.itopw.dto.response.UserInfoResponseDto;
+import com.ITOPW.itopw.dto.response.*;
 import com.ITOPW.itopw.entity.Project;
 import com.ITOPW.itopw.entity.User;
 import com.ITOPW.itopw.repository.ProjectRepository;
@@ -121,5 +118,13 @@ public class AuthController {
     public ResponseEntity<List<Project>> getAllProjects() {
         List<Project> projects = projectRepository.findAll();
         return ResponseEntity.ok(projects); // 200 OK 상태와 함께 프로젝트 리스트 반환
+    }
+
+    @GetMapping("/projects/description")
+    public ResponseEntity<List<Project>> findProjectsByProjectId(
+            @RequestParam List<String> projectIds) {
+        List<Project> projects =projectRepository.findProjectsByProjectId(projectIds);
+
+        return ResponseEntity.ok(projects);
     }
 }

@@ -36,10 +36,12 @@ public class StatisticsService {
 //        int totalCurrentBeforeTasks = 0;
 //        int totalPreviousBeforeTasks = 0;
 
+
         List<Statistics> currentStats = statisticsRepository.findByProjectIdAndMonth(projectIds, currentMonth);
         entityManager.clear();
         List<Statistics> previousStats = statisticsRepository.findByProjectIdAndMonth(projectIds, previousMonth);
         entityManager.clear();
+
 
         // 현재 월 (11월) 데이터
         int currentTotalTasks = 0;
@@ -50,11 +52,14 @@ public class StatisticsService {
 
         for (Statistics stat : currentStats) {
             currentTotalTasks += stat.getTotalTasks();
-            currentBeforeTasks += stat.getTotalTasks() * stat.getBeforePercentage().divide(BigDecimal.valueOf(100)).intValue();
-            currentProgressTasks += stat.getTotalTasks() * stat.getProgressPercentage().divide(BigDecimal.valueOf(100)).intValue();
-            currentCompleteTasks += stat.getTotalTasks() * stat.getCompletePercentage().divide(BigDecimal.valueOf(100)).intValue();
-            currentDelayedTasks += stat.getTotalTasks() * stat.getDelayedPercentage().divide(BigDecimal.valueOf(100)).intValue();
+
+            currentBeforeTasks += stat.getTotalTasks() * stat.getBeforePercentage().doubleValue() / 100.0;
+            currentProgressTasks += stat.getTotalTasks() * stat.getProgressPercentage().doubleValue() / 100.0;
+            currentCompleteTasks += stat.getTotalTasks() * stat.getCompletePercentage().doubleValue() / 100.0;
+            currentDelayedTasks += stat.getTotalTasks() * stat.getDelayedPercentage().doubleValue() / 100.0;
+
         }
+
 
         // 이전 월 (10월) 데이터
         int previousTotalTasks = 0;
@@ -65,38 +70,66 @@ public class StatisticsService {
 
         for (Statistics stat : previousStats) {
             previousTotalTasks += stat.getTotalTasks();
-            previousBeforeTasks += stat.getTotalTasks() * stat.getBeforePercentage().divide(BigDecimal.valueOf(100)).intValue();
-            previousProgressTasks += stat.getTotalTasks() * stat.getProgressPercentage().divide(BigDecimal.valueOf(100)).intValue();
-            previousCompleteTasks += stat.getTotalTasks() * stat.getCompletePercentage().divide(BigDecimal.valueOf(100)).intValue();
-            previousDelayedTasks += stat.getTotalTasks() * stat.getDelayedPercentage().divide(BigDecimal.valueOf(100)).intValue();
+            previousBeforeTasks += stat.getTotalTasks() * stat.getBeforePercentage().doubleValue() / 100.0;
+            previousProgressTasks += stat.getTotalTasks() * stat.getProgressPercentage().doubleValue() / 100.0;
+            previousCompleteTasks += stat.getTotalTasks() * stat.getCompletePercentage().doubleValue() / 100.0;
+            previousDelayedTasks += stat.getTotalTasks() * stat.getDelayedPercentage().doubleValue() / 100.0;
         }
+
+//        // 비율 계산
+//        BigDecimal currentBeforePercentage = currentTotalTasks > 0
+//                ? BigDecimal.valueOf((double) currentBeforeTasks / currentTotalTasks).setScale(2, RoundingMode.HALF_UP)
+//                : BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+//        BigDecimal currentProgressPercentage = currentTotalTasks > 0
+//                ? BigDecimal.valueOf((double) currentProgressTasks / currentTotalTasks).setScale(2, RoundingMode.HALF_UP)
+//                : BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+//        BigDecimal currentCompletePercentage = currentTotalTasks > 0
+//                ? BigDecimal.valueOf((double) currentCompleteTasks / currentTotalTasks).setScale(2, RoundingMode.HALF_UP)
+//                : BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+//        BigDecimal currentDelayedPercentage = currentTotalTasks > 0
+//                ? BigDecimal.valueOf((double) currentDelayedTasks / currentTotalTasks).setScale(2, RoundingMode.HALF_UP)
+//                : BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+//
+//        BigDecimal previousBeforePercentage = previousTotalTasks > 0
+//                ? BigDecimal.valueOf((double) previousBeforeTasks / previousTotalTasks).setScale(2, RoundingMode.HALF_UP)
+//                : BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+//        BigDecimal previousProgressPercentage = previousTotalTasks > 0
+//                ? BigDecimal.valueOf((double) previousProgressTasks / previousTotalTasks).setScale(2, RoundingMode.HALF_UP)
+//                : BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+//        BigDecimal previousCompletePercentage = previousTotalTasks > 0
+//                ? BigDecimal.valueOf((double) previousCompleteTasks / previousTotalTasks).setScale(2, RoundingMode.HALF_UP)
+//                : BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+//        BigDecimal previousDelayedPercentage = previousTotalTasks > 0
+//                ? BigDecimal.valueOf((double) previousDelayedTasks / previousTotalTasks).setScale(2, RoundingMode.HALF_UP)
+//                : BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
 
         // 비율 계산
         BigDecimal currentBeforePercentage = currentTotalTasks > 0
-                ? BigDecimal.valueOf((double) currentBeforeTasks / currentTotalTasks).setScale(2, RoundingMode.HALF_UP)
+                ? BigDecimal.valueOf((double) currentBeforeTasks / currentTotalTasks).multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP)
                 : BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
         BigDecimal currentProgressPercentage = currentTotalTasks > 0
-                ? BigDecimal.valueOf((double) currentProgressTasks / currentTotalTasks).setScale(2, RoundingMode.HALF_UP)
+                ? BigDecimal.valueOf((double) currentProgressTasks / currentTotalTasks).multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP)
                 : BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
         BigDecimal currentCompletePercentage = currentTotalTasks > 0
-                ? BigDecimal.valueOf((double) currentCompleteTasks / currentTotalTasks).setScale(2, RoundingMode.HALF_UP)
+                ? BigDecimal.valueOf((double) currentCompleteTasks / currentTotalTasks).multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP)
                 : BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
         BigDecimal currentDelayedPercentage = currentTotalTasks > 0
-                ? BigDecimal.valueOf((double) currentDelayedTasks / currentTotalTasks).setScale(2, RoundingMode.HALF_UP)
+                ? BigDecimal.valueOf((double) currentDelayedTasks / currentTotalTasks).multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP)
                 : BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
 
         BigDecimal previousBeforePercentage = previousTotalTasks > 0
-                ? BigDecimal.valueOf((double) previousBeforeTasks / previousTotalTasks).setScale(2, RoundingMode.HALF_UP)
+                ? BigDecimal.valueOf((double) previousBeforeTasks / previousTotalTasks).multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP)
                 : BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
         BigDecimal previousProgressPercentage = previousTotalTasks > 0
-                ? BigDecimal.valueOf((double) previousProgressTasks / previousTotalTasks).setScale(2, RoundingMode.HALF_UP)
+                ? BigDecimal.valueOf((double) previousProgressTasks / previousTotalTasks).multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP)
                 : BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
         BigDecimal previousCompletePercentage = previousTotalTasks > 0
-                ? BigDecimal.valueOf((double) previousCompleteTasks / previousTotalTasks).setScale(2, RoundingMode.HALF_UP)
+                ? BigDecimal.valueOf((double) previousCompleteTasks / previousTotalTasks).multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP)
                 : BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
         BigDecimal previousDelayedPercentage = previousTotalTasks > 0
-                ? BigDecimal.valueOf((double) previousDelayedTasks / previousTotalTasks).setScale(2, RoundingMode.HALF_UP)
+                ? BigDecimal.valueOf((double) previousDelayedTasks / previousTotalTasks).multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP)
                 : BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+
 
         // 상태 증가율 계산
         BigDecimal beforeIncrease = currentBeforePercentage.subtract(previousBeforePercentage).setScale(2, RoundingMode.HALF_UP);
@@ -105,18 +138,19 @@ public class StatisticsService {
         BigDecimal delayedIncrease = currentDelayedPercentage.subtract(previousDelayedPercentage).setScale(2, RoundingMode.HALF_UP);
 
         // 최종 통합된 통계 생성
+        // 최종 통합된 통계 생성
         Statistics combinedStatistics = Statistics.builder()
                 .projectId(projectIds.toString())
                 .month(month)
                 .totalTasks(currentTotalTasks)
-                .beforePercentage(currentBeforePercentage.multiply(BigDecimal.valueOf(100)))
-                .progressPercentage(currentProgressPercentage.multiply(BigDecimal.valueOf(100)))
-                .completePercentage(currentCompletePercentage.multiply(BigDecimal.valueOf(100)))
-                .delayedPercentage(currentDelayedPercentage.multiply(BigDecimal.valueOf(100)))
-                .previousBeforePercentage(previousBeforePercentage.multiply(BigDecimal.valueOf(100)))
-                .previousProgressPercentage(previousProgressPercentage.multiply(BigDecimal.valueOf(100)))
-                .previousCompletePercentage(previousCompletePercentage.multiply(BigDecimal.valueOf(100)))
-                .previousDelayedPercentage(previousDelayedPercentage.multiply(BigDecimal.valueOf(100)))
+                .beforePercentage(currentBeforePercentage)
+                .progressPercentage(currentProgressPercentage)
+                .completePercentage(currentCompletePercentage)
+                .delayedPercentage(currentDelayedPercentage)
+                .previousBeforePercentage(previousBeforePercentage)
+                .previousProgressPercentage(previousProgressPercentage)
+                .previousCompletePercentage(previousCompletePercentage)
+                .previousDelayedPercentage(previousDelayedPercentage)
                 .build();
 
         return new StatisticsResponse(combinedStatistics, beforeIncrease.multiply(BigDecimal.valueOf(100)), progressIncrease.multiply(BigDecimal.valueOf(100)),

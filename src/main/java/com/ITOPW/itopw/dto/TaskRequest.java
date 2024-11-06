@@ -2,6 +2,8 @@ package com.ITOPW.itopw.dto;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.List;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,14 +23,14 @@ public class TaskRequest {
     private String assigneeConfirmation;
 
     // 주기적 업무 관련 필드
-    private boolean isRecurring;          // 주기적 업무 여부
+    private boolean recurring;            // 주기적 업무 여부
     private String frequencyType;         // 주기 유형: "daily", "weekly", "monthly", "yearly"
     private int frequencyInterval;        // n일, n주, n개월 등의 간격
     private boolean hasEndDate;           // 종료일 여부
     private LocalDate endDate;            // 종료일 설정
 
     // 매주 반복
-    private DayOfWeek weeklyDay;          // 매주 반복 시 특정 요일 선택 (월, 화 등)
+    private List<DayOfWeek> weeklyDay;          // 매주 반복 시 특정 요일 선택 (월, 화 등)
 
     // 매월 반복
     private Integer monthlyDayOfMonth;    // 매월 반복 시 특정 일자 선택 (예: 매월 6일)
