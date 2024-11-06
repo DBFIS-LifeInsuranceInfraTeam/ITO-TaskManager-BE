@@ -7,6 +7,7 @@ RUN ./gradlew bootJar
 
 FROM openjdk:17.0-jdk-slim
 COPY --from=builder /app/Itopw/build/libs/*.jar app.jar
+COPY --from=builder /app/Itopw/src/main/resources/static/images /app/images
 
 EXPOSE 8080
 
