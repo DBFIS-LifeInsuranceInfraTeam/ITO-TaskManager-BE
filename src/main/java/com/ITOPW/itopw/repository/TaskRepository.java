@@ -44,4 +44,10 @@ public interface TaskRepository extends JpaRepository<Task, Integer>, JpaSpecifi
     @Modifying
     @Query("UPDATE Task t SET t.status = 2 WHERE t.taskId = :taskId AND t.status IN (0, 1, 3)")
     int updateStatusToCompleted(@Param("taskId") String taskId);
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE Task t SET t.assigneeConfirmation = :confirmation WHERE t.taskId = :taskId")
+    int updateAssigneeConfirmation(@Param("taskId") Long taskId, @Param("confirmation") String confirmation);
+
 }

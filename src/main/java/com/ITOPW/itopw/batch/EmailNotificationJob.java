@@ -78,6 +78,9 @@ public class EmailNotificationJob implements Job {
                     + "<p style='margin: 0; font-size: 17px;'>담당자: <b>" + assignee.getName() + "</b></p>"
                     + "<p style='margin: 0; font-size: 17px;'>마감일: <b>" + task.getDueDate() + "</b></p>"
                     + "</div>"
+                    + "<a href='http://localhost:8080/api/tasks/" + task.getTaskId() + "/confirm?email=" + assignee.getEmail() + "'>"
+                    + "<button style='padding: 10px 20px; background-color: #4CAF50; color: white; border: none; font-size: 16px; cursor: pointer;'>확인완료</button>"
+                    + "</a>"
                     + "</div>";
 
 
@@ -89,6 +92,7 @@ public class EmailNotificationJob implements Job {
             mailSender.send(message);
         } catch (Exception e) {
             System.out.println("메일 전송 실패: " + e.getMessage());
+            e.printStackTrace();  // 예외의 세부사항을 출력
         }
     }
 

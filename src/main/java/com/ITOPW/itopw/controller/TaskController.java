@@ -125,9 +125,19 @@ public class TaskController {
     public ResponseEntity<String> completeTask(@PathVariable String taskId) {
         boolean success = taskService.completeTask(taskId);
         if (success) {
-            return ResponseEntity.ok("Task status updated to completed.");
+            return ResponseEntity.ok("Task상태 변경완료");
         } else {
-            return ResponseEntity.badRequest().body("Invalid task status or task not found.");
+            return ResponseEntity.badRequest().body("실패");
+        }
+    }
+
+    @PostMapping("/{taskId}/confirm")
+    public ResponseEntity<String> confirmTask(@PathVariable Long taskId, @RequestParam String email) {
+        boolean isUpdated = taskService.confirmTask(taskId, email);
+        if (isUpdated) {
+            return ResponseEntity.ok("담당자 확인완료");
+        } else {
+            return ResponseEntity.badRequest().body("확인 실패");
         }
     }
 

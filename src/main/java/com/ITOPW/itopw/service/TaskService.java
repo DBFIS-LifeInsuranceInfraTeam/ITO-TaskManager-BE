@@ -546,4 +546,11 @@ public class TaskService {
         int rowsUpdated = taskRepository.updateStatusToCompleted(taskId);
         return rowsUpdated > 0; // 업데이트 성공 여부 반환
     }
+
+    public boolean confirmTask(Long taskId, String email) {
+        // 이메일 확인 후, 해당 taskId에 대해 assigneeConfirmation을 Y로 업데이트
+        int rowsUpdated = taskRepository.updateAssigneeConfirmation(taskId, "Y");
+        return rowsUpdated > 0;
+    }
+
 }
