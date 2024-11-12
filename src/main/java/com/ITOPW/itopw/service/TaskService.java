@@ -286,10 +286,11 @@ public class TaskService {
         List<Task> recurringTasks = new ArrayList<>();
 
         LocalDate startDate = taskRequest.getStartDate();
-        LocalDate endDate = taskRequest.getDueDate();
+        LocalDate endDate = taskRequest.getEndDate();
         boolean hasEndDate = taskRequest.isHasEndDate(); // 종료일 여부
         int frequencyInterval = taskRequest.getFrequencyInterval(); // 주기 간격
 
+        System.out.println(taskRequest.getFrequencyInterval());
         // 반복을 종료할 기준 설정
         LocalDate limitDate = hasEndDate ? endDate : LocalDate.of(startDate.getYear() + 1, 12, 31);
 
@@ -350,8 +351,12 @@ public class TaskService {
         String baseTaskId = "TASK_" + UUID.randomUUID().toString().substring(0, 8); // 공통 접두사 생성
 
         int instanceNumber = 1;
+        // 문자열 요일을 DayOfWeek로 변환 (람다식 사용)
+        List<DayOfWeek> weeklyDays = taskRequest.getWeeklyDay(); // 이미 DayOfWeek 타입
+
+
         while (startDate.isBefore(limitDate) || startDate.equals(limitDate)) {
-            for (DayOfWeek dayOfWeek : taskRequest.getWeeklyDay()) { // 선택된 요일 각각에 대해 반복
+            for (DayOfWeek dayOfWeek : weeklyDays) { // 선택된 요일 각각에 대해 반복
                 LocalDate nextDate = getNextWeekday(startDate, dayOfWeek);
                 if (nextDate.isAfter(limitDate)) continue;
 
@@ -371,10 +376,16 @@ public class TaskService {
         return tasks;
     }
 
+//    private LocalDate getNextWeekday(LocalDate date, DayOfWeek dayOfWeek) {
+//        int daysToAdd = (dayOfWeek.getValue() - date.getDayOfWeek().getValue() + 7) % 7;
+//        return date.plusDays(daysToAdd == 0 ? 7 : daysToAdd); // 다음 요일 계산
+//    }
+
     private LocalDate getNextWeekday(LocalDate date, DayOfWeek dayOfWeek) {
         int daysToAdd = (dayOfWeek.getValue() - date.getDayOfWeek().getValue() + 7) % 7;
-        return date.plusDays(daysToAdd == 0 ? 7 : daysToAdd); // 다음 요일 계산
+        return date.plusDays(daysToAdd == 0 ? 0 : daysToAdd); // 현재 날짜가 요일과 같으면 바로 반환
     }
+
 
     private List<Task> createMonthlyTasks(TaskRequest taskRequest, LocalDate startDate, LocalDate limitDate, int interval) {
         List<Task> tasks = new ArrayList<>();

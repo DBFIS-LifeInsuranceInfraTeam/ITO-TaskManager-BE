@@ -12,14 +12,19 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/api/**")
                 .allowedOrigins("*")
                 .allowedMethods("GET", "POST", "PUT", "DELETE");
+
+        // /images/** 경로에 대한 CORS 설정
+        registry.addMapping("/images/**")
+                .allowedOrigins("*")
+                .allowedMethods("GET", "POST");
     }
 
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/images/**")
-                .addResourceLocations("file:/app/images/")
-                .setCachePeriod(0); // 캐시 비활성화
-    }
+//    @Override
+//    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+//        registry.addResourceHandler("/images/**")
+//                .addResourceLocations("file:/app/images/")
+//                .setCachePeriod(0); // 캐시 비활성화
+//    }
 
 
 }

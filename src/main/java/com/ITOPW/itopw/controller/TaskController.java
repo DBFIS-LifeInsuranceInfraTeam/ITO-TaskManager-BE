@@ -27,8 +27,9 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    @PostMapping
+    @PostMapping("/addtask")
     public ResponseEntity<Response> createTask(@RequestBody TaskRequest taskRequest) {
+        System.out.println(taskRequest.isRecurring());
         if (taskRequest.isRecurring()) {
             List<Task> recurringTasks = taskService.createRecurringTasks(taskRequest);
             return recurringTasks.isEmpty()
