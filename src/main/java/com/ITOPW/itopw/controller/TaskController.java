@@ -120,5 +120,16 @@ public class TaskController {
     }
 
 
+    //Task 완료 처리
+    @PostMapping("/{taskId}/complete")
+    public ResponseEntity<String> completeTask(@PathVariable String taskId) {
+        boolean success = taskService.completeTask(taskId);
+        if (success) {
+            return ResponseEntity.ok("Task status updated to completed.");
+        } else {
+            return ResponseEntity.badRequest().body("Invalid task status or task not found.");
+        }
+    }
+
 }
 

@@ -31,13 +31,14 @@ public class TaskService {
     private final TaskSpecification taskSpecification;
     private final UserRepository userRepository;
 
+
+
     @Autowired
     public TaskService(TaskRepository taskRepository, TaskSpecification taskSpecification, UserRepository userRepository) {
         this.taskRepository = taskRepository;
         this.taskSpecification = taskSpecification;
         this.userRepository = userRepository;
     }
-
 
     @Transactional
     public ResponseEntity<Response> createTask(TaskRequest taskRequest) {
@@ -538,5 +539,11 @@ public class TaskService {
     public void updateTaskStatus() {
         LocalDate today = LocalDate.now();
         taskRepository.updateStatusForPastTasks(today);
+    }
+
+    // Task 완료처리
+    public boolean completeTask(String taskId) {
+        int rowsUpdated = taskRepository.updateStatusToCompleted(taskId);
+        return rowsUpdated > 0; // 업데이트 성공 여부 반환
     }
 }
