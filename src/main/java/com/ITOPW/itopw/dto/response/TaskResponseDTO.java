@@ -24,9 +24,10 @@ public class TaskResponseDTO {
     private Integer status;
     private String itoProcessId;
     private String assigneeConfirmation;
+    private String createdBy;
     private List<CommentResponseDTO> comments;
 
-    public TaskResponseDTO(String taskId, String projectId, String taskName, String description, String assigneeId, LocalDate createdDate, LocalDate startDate, LocalDate dueDate, Integer frequencyId, Integer commentCount, Integer status, String itoProcessId, String assigneeConfirmation, List<CommentResponseDTO> comments) {
+    public TaskResponseDTO(String taskId, String projectId, String taskName, String description, String assigneeId, LocalDate createdDate, LocalDate startDate, LocalDate dueDate, Integer frequencyId, Integer commentCount, Integer status, String itoProcessId, String assigneeConfirmation, List<CommentResponseDTO> comments, String createdBy) {
         this.taskId = taskId;
         this.projectId = projectId;
         this.taskName = taskName;
@@ -42,6 +43,7 @@ public class TaskResponseDTO {
         this.itoProcessId = itoProcessId;
         this.assigneeConfirmation = assigneeConfirmation;
         this.comments = comments;
+        this.createdBy = createdBy;
     }
 
     public TaskResponseDTO(String taskId, String taskName, String assigneeId,String assigneeName, String assigneeProfile, LocalDate dueDate, Integer status, String itoProcessId) {
@@ -55,7 +57,7 @@ public class TaskResponseDTO {
         this.itoProcessId = itoProcessId;
     }
 
-    public TaskResponseDTO(String taskId, String projectId, String taskName, String description, String assigneeId, String assigneeName, String assigneeProfile, LocalDate createdDate, LocalDate startDate, LocalDate dueDate, Integer frequencyId, Integer commentCount, Integer status, String itoProcessId, String assigneeConfirmation, List<CommentResponseDTO> comments) {
+    public TaskResponseDTO(String taskId, String projectId, String taskName, String description, String assigneeId, String assigneeName, String assigneeProfile, LocalDate createdDate, LocalDate startDate, LocalDate dueDate, Integer frequencyId, Integer commentCount, Integer status, String itoProcessId, String assigneeConfirmation, List<CommentResponseDTO> comments,String createdBy) {
         this.taskId = taskId;
         this.projectId = projectId;
         this.taskName = taskName;
@@ -71,8 +73,11 @@ public class TaskResponseDTO {
         this.status = status;
         this.itoProcessId = itoProcessId;
         this.assigneeConfirmation = assigneeConfirmation;
-        this.comments = comments;
+       this.comments = comments;
+       this.createdBy = createdBy;
     }
+
+    //private List<AssigneeResponse> assignees; // 담당자 리스트
 
     public TaskResponseDTO() {
 

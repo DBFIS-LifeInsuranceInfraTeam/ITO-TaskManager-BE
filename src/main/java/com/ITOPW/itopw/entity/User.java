@@ -5,7 +5,9 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 @Entity
@@ -54,5 +56,8 @@ public class  User {
 
     @Column(name = "admin")
     private Boolean admin;
+
+//    @ManyToMany(mappedBy = "assignees")
+//    private Set<Task> tasks = new HashSet<>();
 
 }

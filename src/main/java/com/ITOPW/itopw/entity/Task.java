@@ -7,7 +7,9 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @AllArgsConstructor
@@ -57,6 +59,16 @@ public class Task {
     @Column(name = "assignee_confirmation", nullable = false) // NOT NULL
     private String assigneeConfirmation;
 
+    @Column(name = "created_by", nullable = false) // NOT NULL
+    private String createdBy;
+
+//    @ManyToMany
+//    @JoinTable(
+//            name = "task_assignee",
+//            joinColumns = @JoinColumn(name = "task_id"),
+//            inverseJoinColumns = @JoinColumn(name = "user_id")
+//    )
+//    private Set<User> assignees = new HashSet<>();
 
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnore // 전체 조회 시 이 필드를 응답에 포함하지 않음

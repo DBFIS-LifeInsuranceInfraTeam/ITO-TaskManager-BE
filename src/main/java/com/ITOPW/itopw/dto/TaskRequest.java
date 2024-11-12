@@ -14,6 +14,9 @@ public class TaskRequest {
     private String taskName;
     private String description;
     private String assigneeId;
+
+    private List<String> assigneeIds; // 선택된 사용자 ID 리스트
+
     private LocalDate createdDate;
     private LocalDate startDate;
     private LocalDate dueDate;
@@ -21,7 +24,7 @@ public class TaskRequest {
     private Integer status;
     private String itoProcessId;
     private String assigneeConfirmation;
-
+    private String createdBy;
     // 주기적 업무 관련 필드
     private boolean recurring;            // 주기적 업무 여부
     private String frequencyType;         // 주기 유형: "daily", "weekly", "monthly", "yearly"

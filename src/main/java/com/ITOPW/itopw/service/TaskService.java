@@ -2,6 +2,7 @@ package com.ITOPW.itopw.service;
 
 import com.ITOPW.itopw.dto.Response;
 import com.ITOPW.itopw.dto.TaskRequest;
+import com.ITOPW.itopw.dto.response.AssigneeResponse;
 import com.ITOPW.itopw.dto.response.CommentResponseDTO;
 import com.ITOPW.itopw.dto.response.TaskResponseDTO;
 import com.ITOPW.itopw.entity.Task;
@@ -21,10 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -56,8 +54,8 @@ public class TaskService {
 
 
         // UUID를 이용해 taskId 생성
-        String generatedTaskId = UUID.randomUUID().toString();
-
+        //String generatedTaskId = UUID.randomUUID().toString();
+        String generatedTaskId = "TASK_" + UUID.randomUUID().toString().substring(0, 8);
         // 태스크가 이미 존재하는지 확인
         if (taskRepository.existsByTaskId(generatedTaskId)) {
             return new ResponseEntity<>(new Response(409, "Conflict", "업무가 이미 존재합니다.", null), HttpStatus.CONFLICT);
@@ -78,6 +76,7 @@ public class TaskService {
         newTask.setStatus(taskRequest.getStatus());
         newTask.setItoProcessId(taskRequest.getItoProcessId());
         newTask.setAssigneeConfirmation(taskRequest.getAssigneeConfirmation());
+        newTask.setCreatedBy(taskRequest.getCreatedBy());
 
         Task createdTask = taskRepository.save(newTask);
         return new ResponseEntity<>(new Response(201, "Created", "업무가 성공적으로 생성되었습니다.", createdTask), HttpStatus.CREATED);
@@ -105,6 +104,8 @@ public class TaskService {
                 .map(comment -> new CommentResponseDTO(comment.getCommentId(), comment.getCommenterId(),comment.getCommentContent(), comment.getCreateDate(), comment.getLikeCount(), comment.getLikedUsers()))
                 .collect(Collectors.toList());
 
+
+
         TaskResponseDTO taskDto = new TaskResponseDTO();
 
         // Task 정보 설정
@@ -119,6 +120,7 @@ public class TaskService {
         taskDto.setItoProcessId(task.getItoProcessId());
         taskDto.setAssigneeConfirmation(task.getAssigneeConfirmation());
         taskDto.setComments(comments);
+        taskDto.setCreatedBy(task.getCreatedBy());
 
 
         Optional<User> assignee = userRepository.findById(task.getAssigneeId());
@@ -127,6 +129,17 @@ public class TaskService {
             taskDto.setAssigneeName(assignee.get().getName());
             taskDto.setAssigneeProfile(assignee.get().getPhoto());
         }
+
+        // 담당자 정보 설정 (여러 명)
+//        List<AssigneeResponse> assignees = task.getAssignees().stream()
+//                .map(user -> new AssigneeResponse(
+//                        user.getUserId(),
+//                        user.getName(),
+//                        user.getPhoto()
+//                ))
+//                .collect(Collectors.toList());
+//        taskDto.setAssignees(assignees);
+
         return taskDto;
     }
 
@@ -482,6 +495,42 @@ public class TaskService {
         dayOfWeekValue = (dayOfWeekValue < 0) ? dayOfWeekValue + 7 : dayOfWeekValue;
         return firstDayOfMonth.plusDays(dayOfWeekValue + 7 * (weekOfMonth - 1));
     }
+
+
+    //담당자 여러명
+//    public  void addTaskWithAssignees(TaskRequest taskRequest) {
+//        Task task = new Task();
+//        task.setTaskName(taskRequest.getTaskName());
+//        String generatedTaskId = "TASK_" + UUID.randomUUID().toString().substring(0, 8);
+//        task.setTaskId(generatedTaskId);
+//        // 사용자 엔터티 조회
+//        List<User> users = userRepository.findAllByUserIdIn(taskRequest.getAssigneeIds());
+//        if (users.isEmpty()) {
+//            throw new RuntimeException("사용자를 찾을 수 없습니다.");
+//        }
+//
+//
+//        task.setProjectId(taskRequest.getProjectId());
+//        task.setTaskName(taskRequest.getTaskName());
+//        task.setAssigneeId("192133");
+//        task.setDescription(taskRequest.getDescription());
+//        task.setCreatedDate(taskRequest.getCreatedDate());
+//        task.setStartDate(taskRequest.getStartDate());
+//        task.setDueDate(taskRequest.getDueDate());
+//        task.setFrequencyId(taskRequest.getFrequencyId());
+//        task.setCommentCount(0); // 기본값 0
+//        task.setStatus(taskRequest.getStatus());
+//        task.setItoProcessId(taskRequest.getItoProcessId());
+//        task.setAssigneeConfirmation(taskRequest.getAssigneeConfirmation());
+//        task.setCreatedBy(taskRequest.getCreatedBy());
+//
+//        // 사용자 엔터티를 Set으로 변환하여 할당
+//        task.setAssignees(new HashSet<>(users));
+//
+//        Task createdTask = taskRepository.save(task);
+//
+//
+//    }
 
 
     // 매일 자정에 실행 (cron 표현식 사용)

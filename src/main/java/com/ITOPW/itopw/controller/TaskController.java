@@ -40,6 +40,12 @@ public class TaskController {
         }
     }
 
+//    @PostMapping("/addTaskMultiple")
+//    public ResponseEntity<String> addTask(@RequestBody TaskRequest taskRequest) {
+//        taskService.addTaskWithAssignees(taskRequest);
+//        return ResponseEntity.ok("업무 추가 완료");
+//    }
+
     @GetMapping("") // 전체 태스크 조회(프로젝트 ID 기반 필터링)
     public ResponseEntity<Page<TaskResponseDTO>> getAllTasksByProjectId(
             @RequestParam List<String> projectIds,

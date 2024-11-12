@@ -31,5 +31,9 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     @Query(value = "SELECT * FROM \"user\" WHERE project_id  && CAST(:projectIds AS text[]) AND unit = :unit", nativeQuery = true)
     List<User> findByProjectIdAndUnit(@Param("projectIds") String projectIds, @Param("unit") String unit);
-    //
+
+    // 여러 userId 값을 기반으로 사용자 목록 조회
+    List<User> findAllByUserIdIn(List<String> userIds);
+
+
 }
