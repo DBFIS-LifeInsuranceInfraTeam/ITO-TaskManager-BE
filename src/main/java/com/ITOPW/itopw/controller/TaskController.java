@@ -5,7 +5,9 @@ import com.ITOPW.itopw.dto.TaskRequest;
 import com.ITOPW.itopw.dto.response.BaseResponseDTO;
 import com.ITOPW.itopw.dto.response.TaskResponseDTO;
 import com.ITOPW.itopw.entity.Task;
+import com.ITOPW.itopw.repository.TaskRepository;
 import com.ITOPW.itopw.service.TaskService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +28,9 @@ public class TaskController {
     public TaskController(TaskService taskService) {
         this.taskService = taskService;
     }
+
+    @Autowired
+    private TaskRepository taskRepository;
 
     @PostMapping("/addtask")
     public ResponseEntity<Response> createTask(@RequestBody TaskRequest taskRequest) {
@@ -131,13 +136,22 @@ public class TaskController {
         }
     }
 
+    // 확인완료 버튼 클릭 후 상태 변경
     @PostMapping("/{taskId}/confirm")
-    public ResponseEntity<String> confirmTask(@PathVariable Long taskId, @RequestParam String email) {
-        boolean isUpdated = taskService.confirmTask(taskId, email);
-        if (isUpdated) {
-            return ResponseEntity.ok("담당자 확인완료");
-        } else {
-            return ResponseEntity.badRequest().body("확인 실패");
+    public ResponseEntity<String> confirmTask(@PathVariable String taskId, @RequestParam String confirmation) {
+        try {
+            // 해당 taskId로 작업 조회
+            Task task = taskRepository.findByTaskId(taskId).orElseThrow(() -> new Exception("Task not found"));
+
+            // 확인 버튼이 'Y'일 경우, assigneeConfirmation을 Y로 업데이트
+            if ("Y".equals(confirmation)) {
+                task.setAssigneeConfirmation("Y");
+                taskRepository.save(task);  // DB에 반영
+            }
+
+            return ResponseEntity.ok("Task confirmation updated.");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error: " + e.getMessage());
         }
     }
 

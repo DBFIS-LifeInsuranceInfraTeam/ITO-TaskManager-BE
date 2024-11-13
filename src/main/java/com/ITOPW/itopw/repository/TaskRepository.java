@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface TaskRepository extends JpaRepository<Task, Integer>, JpaSpecificationExecutor<Task> {
+public interface TaskRepository extends JpaRepository<Task, String>, JpaSpecificationExecutor<Task> {
     // 기본 CRUD 메서드와 추가적인 쿼리 메서드
 
     List<Task> findByDueDateBetween(LocalDate startDate, LocalDate endDate);
@@ -48,6 +48,6 @@ public interface TaskRepository extends JpaRepository<Task, Integer>, JpaSpecifi
     @Transactional
     @Modifying
     @Query("UPDATE Task t SET t.assigneeConfirmation = :confirmation WHERE t.taskId = :taskId")
-    int updateAssigneeConfirmation(@Param("taskId") Long taskId, @Param("confirmation") String confirmation);
+    int updateAssigneeConfirmation(@Param("taskId") String taskId, @Param("confirmation") String confirmation);
 
 }

@@ -547,10 +547,14 @@ public class TaskService {
         return rowsUpdated > 0; // 업데이트 성공 여부 반환
     }
 
-    public boolean confirmTask(Long taskId, String email) {
-        // 이메일 확인 후, 해당 taskId에 대해 assigneeConfirmation을 Y로 업데이트
-        int rowsUpdated = taskRepository.updateAssigneeConfirmation(taskId, "Y");
-        return rowsUpdated > 0;
+    public boolean confirmTask(String taskId, String email) {
+        Task task = taskRepository.findById(taskId).orElse(null);
+        if (task != null && task.getAssigneeConfirmation().equals("N")) { // 초기값이 "N"
+            task.setAssigneeConfirmation("Y");  // "Y"로 변경
+            taskRepository.save(task);
+            return true;
+        }
+        return false;
     }
 
 }
