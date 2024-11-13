@@ -137,7 +137,7 @@ public class TaskController {
     }
 
     // 확인완료 버튼 클릭 후 상태 변경
-    @PostMapping("/{taskId}/confirm")
+    @GetMapping("/{taskId}/confirm")
     public ResponseEntity<String> confirmTask(@PathVariable String taskId, @RequestParam String confirmation) {
         try {
             // 해당 taskId로 작업 조회
@@ -154,6 +154,7 @@ public class TaskController {
             return ResponseEntity.status(500).body("Error: " + e.getMessage());
         }
     }
+
 
 }
 
