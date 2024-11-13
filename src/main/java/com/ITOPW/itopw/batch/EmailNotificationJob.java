@@ -67,7 +67,7 @@ public class EmailNotificationJob implements Job {
 
             String htmlContent = "<div style='text-align: center; padding: 20px;'>"
                     + "<a href='http://메인페이지추가필요.com'>" // 링크 추가
-                    + "<img src='cid:logoImage' style='width: 100px; height: auto;'>"
+                    //+ "<img src='cid:logoImage' style='width: 100px; height: auto;'>"
                     + "</a>"
                     + "<h1>작업 마감일 알림</h1>"
                     + "<br>"
@@ -97,8 +97,8 @@ public class EmailNotificationJob implements Job {
 
             helper.setText(htmlContent, true);
 
-            File imageFile = new File("src/main/resources/static/images/DB_Logo.png");
-            helper.addInline("logoImage", imageFile);
+            //File imageFile = new File("src/main/resources/static/images/DB_Logo.png");
+            //helper.addInline("logoImage", imageFile);
 
             mailSender.send(message);
         } catch (Exception e) {
