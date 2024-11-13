@@ -66,9 +66,9 @@ public class EmailNotificationJob implements Job {
             helper.setFrom("DB ITO <db.itopw@gmail.com>");
 
             String htmlContent = "<div style='text-align: center; padding: 20px;'>"
-                    + "<a href='http://210.127.59.84:31427/task/detail?taskId=" + task.getTaskId() + "'>"  // 링크 추가
+                    //+ "<a href='http://메인페이지추가필요.com'>" // 링크 추가
                     //+ "<img src='cid:logoImage' style='width: 100px; height: auto;'>"
-                    + "</a>"
+                    //+ "</a>"
                     + "<h1>작업 마감일 알림</h1>"
                     + "<br>"
                     + "<p style='font-size: 19px;'>"

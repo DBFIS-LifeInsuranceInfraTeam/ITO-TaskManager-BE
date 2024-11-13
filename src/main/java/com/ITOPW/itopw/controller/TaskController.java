@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -138,7 +139,7 @@ public class TaskController {
 
     // 확인완료 버튼 클릭 후 상태 변경
     @GetMapping("/{taskId}/confirm")
-    public ResponseEntity<String> confirmTask(@PathVariable String taskId, @RequestParam String confirmation) {
+    public ResponseEntity<Void> confirmTask(@PathVariable String taskId, @RequestParam String confirmation) {
         try {
             // 해당 taskId로 작업 조회
             Task task = taskRepository.findByTaskId(taskId).orElseThrow(() -> new Exception("Task not found"));
@@ -149,9 +150,14 @@ public class TaskController {
                 taskRepository.save(task);  // DB에 반영
             }
 
-            return ResponseEntity.ok("Task confirmation updated.");
+            // 리다이렉트 URL 설정
+            URI redirectUri = URI.create("http://210.127.59.84:31427/task/detail?taskId=" + taskId);
+
+            // 리다이렉트 응답 반환
+            return ResponseEntity.status(HttpStatus.FOUND).location(redirectUri).build();
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error: " + e.getMessage());
+            // 실패 시 HTTP 500 응답 반환
+            return ResponseEntity.status(500).build();
         }
     }
 
