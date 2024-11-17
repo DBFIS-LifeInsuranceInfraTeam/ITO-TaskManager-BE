@@ -51,8 +51,8 @@ public class QuartzConfig {
                 .forJob(emailNotificationJobDetail())
                 .withIdentity("emailNotificationTrigger")
                 // 필요에 따라 변경하여 테스트
-                .withSchedule(CronScheduleBuilder.cronSchedule("0,30 * * * * ?"))
-//                .withSchedule(CronScheduleBuilder.cronSchedule("0 0 18 * * ?"))
+//                .withSchedule(CronScheduleBuilder.cronSchedule("0,30 * * * * ?"))
+                .withSchedule(CronScheduleBuilder.cronSchedule("0 0 12 1 1 ?"))
                 .build();
     }
 

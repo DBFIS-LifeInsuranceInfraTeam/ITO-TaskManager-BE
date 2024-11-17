@@ -30,6 +30,12 @@ public interface TaskRepository extends JpaRepository<Task, String>, JpaSpecific
     Page<Task> findByProjectIdIn(List<String> projectIds, Pageable pageable);
 
     Page<Task> findAll(Specification<Task> spec, Pageable pageable);
+    //담당자 여러명일때
+    @Query("SELECT t FROM Task t " +
+            "LEFT JOIN FETCH t.assignees a " + // 조인 테이블의 관계 매핑
+            "WHERE t.projectId IN :projectIds")
+    Page<Task> findByProjectIdInWithAssignees(@Param("projectIds") List<String> projectIds, Pageable pageable);
+
 
     @Query("SELECT t FROM Task t WHERE YEAR(t.dueDate) = :year AND MONTH(t.dueDate) = :month AND t.projectId IN :projectIds")
     List<Task> findTasksByMonthAndProjectIds(@Param("year") int year, @Param("month") int month, @Param("projectIds") List<String> projectIds);

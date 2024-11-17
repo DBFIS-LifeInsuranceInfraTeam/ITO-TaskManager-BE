@@ -46,11 +46,11 @@ public class TaskController {
         }
     }
 
-//    @PostMapping("/addTaskMultiple")
-//    public ResponseEntity<String> addTask(@RequestBody TaskRequest taskRequest) {
-//        taskService.addTaskWithAssignees(taskRequest);
-//        return ResponseEntity.ok("업무 추가 완료");
-//    }
+    @PostMapping("/addTaskMultiple")
+    public ResponseEntity<Response> addTask(@RequestBody TaskRequest taskRequest) {
+
+        return taskService.addTaskWithAssignees(taskRequest);
+    }
 
     @GetMapping("") // 전체 태스크 조회(프로젝트 ID 기반 필터링)
     public ResponseEntity<Page<TaskResponseDTO>> getAllTasksByProjectId(
@@ -77,12 +77,12 @@ public class TaskController {
 
     // 월별 업무 조회 (프로젝트 ID 기반 필터링 추가)
     @GetMapping("/monthly")
-    public ResponseEntity<List<Task>> getTasksByMonth(
+    public ResponseEntity<List<TaskResponseDTO>> getTasksByMonth(
             @RequestParam int year,
             @RequestParam int month,
             @RequestParam List<String> projectIds // 프로젝트 ID 목록을 배열로 받음
     ) {
-        List<Task> tasks = taskService.getTasksByMonthAndProjectIds(year, month, projectIds);
+        List<TaskResponseDTO> tasks = taskService.getTasksByMonthAndProjectIds(year, month, projectIds);
         return tasks.isEmpty()
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.ok(tasks);
