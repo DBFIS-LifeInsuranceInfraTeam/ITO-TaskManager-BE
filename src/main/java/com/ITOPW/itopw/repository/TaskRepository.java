@@ -56,4 +56,9 @@ public interface TaskRepository extends JpaRepository<Task, String>, JpaSpecific
     @Query("UPDATE Task t SET t.assigneeConfirmation = :confirmation WHERE t.taskId = :taskId")
     int updateAssigneeConfirmation(@Param("taskId") String taskId, @Param("confirmation") String confirmation);
 
+    // 반복 업무 삭제
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM Task t WHERE t.taskId LIKE :taskIdPrefix%")
+    void deleteByTaskIdStartingWith(@Param("taskIdPrefix") String taskIdPrefix);
 }

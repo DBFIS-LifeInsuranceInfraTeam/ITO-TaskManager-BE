@@ -1120,5 +1120,9 @@ public class TaskService {
     }
 
 
+    // 반복 업무 삭제
+    public void deleteTasksByPrefix(String taskIdPrefix) {
+        taskRepository.deleteByTaskIdStartingWith(taskIdPrefix);
+    }
 
 }

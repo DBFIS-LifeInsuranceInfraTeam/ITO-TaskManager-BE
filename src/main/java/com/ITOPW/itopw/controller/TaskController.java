@@ -94,6 +94,13 @@ public class TaskController {
         return taskService.deleteTask(id);
     }
 
+    // 반복 업무 삭제
+    @DeleteMapping
+    public ResponseEntity<Void> deleteRelatedTasks(@RequestParam String taskIdPrefix) {
+        taskService.deleteTasksByPrefix(taskIdPrefix);
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping("/{id}") // ID로 태스크 수정
     public ResponseEntity<Response> updateTask(@PathVariable String id, @RequestBody TaskRequest taskRequest) { // String으로 수정
         return taskService.updateTask(id, taskRequest);
