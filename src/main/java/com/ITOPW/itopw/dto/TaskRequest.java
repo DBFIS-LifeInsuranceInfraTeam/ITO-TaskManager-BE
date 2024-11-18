@@ -13,14 +13,14 @@ public class TaskRequest {
     private String projectId;
     private String taskName;
     private String description;
-    private String assigneeId;
+    //private String assigneeId;
 
     private List<String> assigneeIds; // 선택된 사용자 ID 리스트
 
     private LocalDate createdDate;
     private LocalDate startDate;
     private LocalDate dueDate;
-    private Integer frequencyId;
+    //private Integer frequencyId;
     private Integer status;
     private String itoProcessId;
     private String assigneeConfirmation;

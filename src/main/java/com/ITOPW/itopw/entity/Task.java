@@ -32,8 +32,8 @@ public class Task {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "assignee_id", nullable = false) // NOT NULL
-    private String assigneeId;
+//    @Column(name = "assignee_id", nullable = false) // NOT NULL
+//    private String assigneeId;
 
     @Column(name = "created_date", nullable = false) // NOT NULL
     private LocalDate createdDate;
@@ -44,8 +44,11 @@ public class Task {
     @Column(name = "due_date")
     private LocalDate dueDate;
 
-    @Column(name = "frequency_id") // FK, nullable
-    private Integer frequencyId;
+//    @Column(name = "frequency_id") // FK, nullable
+//    private Integer frequencyId;
+
+    @Column(name = "recurring") // FK, nullable
+    private boolean recurring;
 
     @Column(name = "comment_count", nullable = false, columnDefinition = "INTEGER DEFAULT 0") // NOT NULL, 기본값 0
     private Integer commentCount = 0;  // 기본값 0으로 초기화
@@ -79,11 +82,11 @@ public class Task {
         this.projectId = taskRequest.getProjectId();
         this.taskName = taskRequest.getTaskName();
         this.description = taskRequest.getDescription();
-        this.assigneeId = taskRequest.getAssigneeId();
+        //this.assigneeId = taskRequest.getAssigneeId();
         this.createdDate = taskRequest.getCreatedDate();
         this.startDate = taskRequest.getStartDate();
         this.dueDate = taskRequest.getDueDate();
-        this.frequencyId = taskRequest.getFrequencyId();
+        //this.frequencyId = taskRequest.getFrequencyId();
         this.status = taskRequest.getStatus();
         this.itoProcessId = taskRequest.getItoProcessId();
         this.assigneeConfirmation = taskRequest.getAssigneeConfirmation();

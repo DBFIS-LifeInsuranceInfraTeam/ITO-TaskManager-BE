@@ -580,7 +580,7 @@ public class TaskService {
     @Transactional
     public ResponseEntity<Response> createTask(TaskRequest taskRequest) {
         if (taskRequest.getTaskName() == null ||
-                taskRequest.getAssigneeId() == null ||
+                taskRequest.getAssigneeIds() == null ||
                 taskRequest.getStartDate() == null ||
                 taskRequest.getCreatedDate() == null ||
                 taskRequest.getStatus() == null ||
@@ -599,11 +599,11 @@ public class TaskService {
         newTask.setProjectId(taskRequest.getProjectId());
         newTask.setTaskName(taskRequest.getTaskName());
         newTask.setDescription(taskRequest.getDescription());
-        newTask.setAssigneeId(taskRequest.getAssigneeId());
+        //newTask.setAssigneeId(taskRequest.getAssigneeId());
         newTask.setCreatedDate(taskRequest.getCreatedDate());
         newTask.setStartDate(taskRequest.getStartDate());
         newTask.setDueDate(taskRequest.getDueDate());
-        newTask.setFrequencyId(taskRequest.getFrequencyId());
+        //newTask.setFrequencyId(taskRequest.getFrequencyId());
         newTask.setCommentCount(0);
         newTask.setStatus(taskRequest.getStatus());
         newTask.setItoProcessId(taskRequest.getItoProcessId());
@@ -629,12 +629,12 @@ public class TaskService {
 
         task.setProjectId(taskRequest.getProjectId());
         task.setTaskName(taskRequest.getTaskName());
-        task.setAssigneeId("192133");
+        //task.setAssigneeId("192133");
         task.setDescription(taskRequest.getDescription());
         task.setCreatedDate(taskRequest.getCreatedDate());
         task.setStartDate(taskRequest.getStartDate());
         task.setDueDate(taskRequest.getDueDate());
-        task.setFrequencyId(taskRequest.getFrequencyId());
+        //task.setFrequencyId(taskRequest.getFrequencyId());
         task.setCommentCount(0); // 기본값 0
         task.setStatus(taskRequest.getStatus());
         task.setItoProcessId(taskRequest.getItoProcessId());
@@ -678,6 +678,7 @@ public class TaskService {
                         return assigneeDTO;
                     })
                     .collect(Collectors.toList());
+
 
             dto.setAssignees(assigneeDTOs);
             return dto;
@@ -780,7 +781,7 @@ public class TaskService {
         public ResponseEntity<Response> updateTask(String taskId, TaskRequest taskRequest) {
         // 필수 필드 유효성 검사
         if (taskRequest.getProjectId() == null ||
-                taskRequest.getTaskName() == null || taskRequest.getAssigneeId() == null ||
+                taskRequest.getTaskName() == null || taskRequest.getAssigneeIds() == null ||
                 taskRequest.getCreatedDate() == null || taskRequest.getStartDate() == null ||
                 taskRequest.getStatus() == null || taskRequest.getItoProcessId() == null ||
                 taskRequest.getAssigneeConfirmation() == null) {
@@ -797,11 +798,11 @@ public class TaskService {
             updatedTask.setProjectId(taskRequest.getProjectId());
             updatedTask.setTaskName(taskRequest.getTaskName());
             updatedTask.setDescription(taskRequest.getDescription());
-            updatedTask.setAssigneeId(taskRequest.getAssigneeId());
+            //updatedTask.setAssigneeId(taskRequest.getAssigneeId());
             updatedTask.setCreatedDate(taskRequest.getCreatedDate());
             updatedTask.setStartDate(taskRequest.getStartDate());
             updatedTask.setDueDate(taskRequest.getDueDate());
-            updatedTask.setFrequencyId(taskRequest.getFrequencyId());
+            //updatedTask.setFrequencyId(taskRequest.getFrequencyId());
             updatedTask.setStatus(taskRequest.getStatus());
             updatedTask.setItoProcessId(taskRequest.getItoProcessId());
             updatedTask.setAssigneeConfirmation(taskRequest.getAssigneeConfirmation());
@@ -905,6 +906,15 @@ public class TaskService {
 
             task.setStartDate(startDate);
             task.setDueDate(startDate); // 종료일을 시작일과 동일하게 설정
+            task.setCreatedBy(taskRequest.getCreatedBy());
+            task.setRecurring(taskRequest.isRecurring());
+            // Assignees 처리 로직 추가
+            List<User> users = userRepository.findAllByUserIdIn(taskRequest.getAssigneeIds());
+            if (users.isEmpty()) {
+                throw new RuntimeException("사용자를 찾을 수 없습니다.");
+            }
+            task.setAssignees(new HashSet<>(users)); // User 엔티티를 Set으로 변환하여 설정
+
             tasks.add(task);
 
             // 다음 반복 주기 시작일을 설정
@@ -938,6 +948,16 @@ public class TaskService {
                 task.setTaskId(uniqueTaskId);
                 task.setStartDate(nextDate);
                 task.setDueDate(nextDate);
+
+                task.setCreatedBy(taskRequest.getCreatedBy());
+                task.setRecurring(taskRequest.isRecurring());
+                // Assignees 처리 로직 추가
+                List<User> users = userRepository.findAllByUserIdIn(taskRequest.getAssigneeIds());
+                if (users.isEmpty()) {
+                    throw new RuntimeException("사용자를 찾을 수 없습니다.");
+                }
+                task.setAssignees(new HashSet<>(users)); // User 엔티티를 Set으로 변환하여 설정
+
                 tasks.add(task);
 
                 instanceNumber++; // 인스턴스 번호 증가
@@ -981,6 +1001,17 @@ public class TaskService {
             task.setTaskId(uniqueTaskId);
             task.setStartDate(nextDate);
             task.setDueDate(nextDate);
+
+            task.setCreatedBy(taskRequest.getCreatedBy());
+            task.setRecurring(taskRequest.isRecurring());
+            // Assignees 처리 로직 추가
+            List<User> users = userRepository.findAllByUserIdIn(taskRequest.getAssigneeIds());
+            if (users.isEmpty()) {
+                throw new RuntimeException("사용자를 찾을 수 없습니다.");
+            }
+            task.setAssignees(new HashSet<>(users)); // User 엔티티를 Set으로 변환하여 설정
+
+
             tasks.add(task);
 
             startDate = startDate.plusMonths(interval);
@@ -1031,6 +1062,16 @@ public class TaskService {
             task.setTaskId(uniqueTaskId);
             task.setStartDate(nextDate);
             task.setDueDate(nextDate);
+
+            task.setCreatedBy(taskRequest.getCreatedBy());
+            task.setRecurring(taskRequest.isRecurring());
+            // Assignees 처리 로직 추가
+            List<User> users = userRepository.findAllByUserIdIn(taskRequest.getAssigneeIds());
+            if (users.isEmpty()) {
+                throw new RuntimeException("사용자를 찾을 수 없습니다.");
+            }
+            task.setAssignees(new HashSet<>(users)); // User 엔티티를 Set으로 변환하여 설정
+
             tasks.add(task);
 
             // 다음 해의 첫 날로 이동
@@ -1048,5 +1089,7 @@ public class TaskService {
         dayOfWeekValue = (dayOfWeekValue < 0) ? dayOfWeekValue + 7 : dayOfWeekValue;
         return firstDayOfMonth.plusDays(dayOfWeekValue + 7 * (weekOfMonth - 1));
     }
+
+
 
 }

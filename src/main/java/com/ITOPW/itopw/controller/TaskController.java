@@ -35,14 +35,15 @@ public class TaskController {
 
     @PostMapping("/addtask")
     public ResponseEntity<Response> createTask(@RequestBody TaskRequest taskRequest) {
-        System.out.println(taskRequest.isRecurring());
+        System.out.println("TaskRequest recurring"+taskRequest.isRecurring());
         if (taskRequest.isRecurring()) {
             List<Task> recurringTasks = taskService.createRecurringTasks(taskRequest);
             return recurringTasks.isEmpty()
                     ? ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Response(400, "Bad Request", "주기적 업무 생성 실패", null))
                     : ResponseEntity.ok(new Response(201, "Created", "주기적 업무가 성공적으로 생성되었습니다.", recurringTasks));
         } else {
-            return taskService.createTask(taskRequest);
+            //return taskService.createTask(taskRequest);//담당자 한명일때
+            return taskService.addTaskWithAssignees(taskRequest);
         }
     }
 
