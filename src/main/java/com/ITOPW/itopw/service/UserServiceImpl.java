@@ -1,5 +1,6 @@
 package com.ITOPW.itopw.service;
 
+import com.ITOPW.itopw.dto.request.UserUpdateRequest;
 import com.ITOPW.itopw.entity.User;
 import com.ITOPW.itopw.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,4 +93,24 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByProjectIdAndUnit("{" + String.join(",", projectIds) + "}", unit);
     }
 
+    @Override
+    public User updateUser(String userId, UserUpdateRequest request) throws UserNotFoundException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
+
+        // Update user fields
+        if (request.getName() != null) user.setName(request.getName());
+        if (request.getEmail() != null) user.setEmail(request.getEmail());
+        if (request.getPhoneNumber() != null) user.setPhoneNumber(request.getPhoneNumber());
+        if (request.getPosition() != null) user.setPosition(request.getPosition());
+        if (request.getUnit() != null) user.setUnit(request.getUnit());
+
+        // Save updated user to the database
+        return userRepository.save(user);
+    }
+    public class UserNotFoundException extends RuntimeException {
+        public UserNotFoundException(String message) {
+            super(message);
+        }
+    }
 }

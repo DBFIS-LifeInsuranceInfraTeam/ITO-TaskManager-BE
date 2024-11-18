@@ -1,5 +1,6 @@
 package com.ITOPW.itopw.service;
 
+import com.ITOPW.itopw.dto.request.UserUpdateRequest;
 import com.ITOPW.itopw.entity.User;
 
 import java.util.List;
@@ -29,4 +30,6 @@ public interface UserService {
     List<User> getUsersByProjectIdList(List<String> projectIds);
 
     List<User> getUsersByProjectIdListAndUnit(List<String> projectIds, String unit);
+
+    User updateUser(String userId, UserUpdateRequest request);
 }

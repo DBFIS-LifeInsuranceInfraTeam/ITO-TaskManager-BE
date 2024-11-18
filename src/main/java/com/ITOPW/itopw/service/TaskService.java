@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 //
@@ -782,9 +783,8 @@ public class TaskService {
         // 필수 필드 유효성 검사
         if (taskRequest.getProjectId() == null ||
                 taskRequest.getTaskName() == null || taskRequest.getAssigneeIds() == null ||
-                taskRequest.getCreatedDate() == null || taskRequest.getStartDate() == null ||
-                taskRequest.getStatus() == null || taskRequest.getItoProcessId() == null ||
-                taskRequest.getAssigneeConfirmation() == null) {
+                taskRequest.getStartDate() == null || taskRequest.getDueDate() == null ||
+                taskRequest.getItoProcessId() == null || taskRequest.getDescription() == null) {
 
             // 필수 필드가 누락된 경우 400 Bad Request 응답 반환
             return new ResponseEntity<>(new Response(400, "Bad Request", "잘못된 요청입니다. 필수 필드를 확인하세요.", null), HttpStatus.BAD_REQUEST);
@@ -799,13 +799,20 @@ public class TaskService {
             updatedTask.setTaskName(taskRequest.getTaskName());
             updatedTask.setDescription(taskRequest.getDescription());
             //updatedTask.setAssigneeId(taskRequest.getAssigneeId());
-            updatedTask.setCreatedDate(taskRequest.getCreatedDate());
+
             updatedTask.setStartDate(taskRequest.getStartDate());
             updatedTask.setDueDate(taskRequest.getDueDate());
             //updatedTask.setFrequencyId(taskRequest.getFrequencyId());
-            updatedTask.setStatus(taskRequest.getStatus());
+            updatedTask.setProjectId(taskRequest.getProjectId());
             updatedTask.setItoProcessId(taskRequest.getItoProcessId());
-            updatedTask.setAssigneeConfirmation(taskRequest.getAssigneeConfirmation());
+
+
+            List<User> users = userRepository.findAllByUserIdIn(taskRequest.getAssigneeIds());
+            if (users.isEmpty()) {
+                throw new RuntimeException("사용자를 찾을 수 없습니다.");
+            }
+            // 사용자 엔터티를 Set으로 변환하여 할당
+            updatedTask.setAssignees(new HashSet<>(users));
 
             Task savedTask = taskRepository.save(updatedTask);
             return new ResponseEntity<>(new Response(200, "OK", "업무가 성공적으로 수정되었습니다.", savedTask), HttpStatus.OK);
@@ -896,6 +903,8 @@ public class TaskService {
         String baseTaskId = "TASK_" + UUID.randomUUID().toString().substring(0, 8); // 공통 접두사 생성
 
         int instanceNumber = 1;
+        long daysBetween = ChronoUnit.DAYS.between(taskRequest.getStartDate(), taskRequest.getDueDate()); // 시작일과 종료일 간격 계산
+
         while (startDate.isBefore(limitDate) || startDate.equals(limitDate)) {
 
             Task task = new Task(taskRequest);
@@ -905,7 +914,9 @@ public class TaskService {
             task.setTaskId(uniqueTaskId);
 
             task.setStartDate(startDate);
-            task.setDueDate(startDate); // 종료일을 시작일과 동일하게 설정
+            LocalDate dueDate = startDate.plusDays(daysBetween); // 종료일 설정
+            task.setDueDate(dueDate);
+
             task.setCreatedBy(taskRequest.getCreatedBy());
             task.setRecurring(taskRequest.isRecurring());
             // Assignees 처리 로직 추가
@@ -935,6 +946,7 @@ public class TaskService {
         // 문자열 요일을 DayOfWeek로 변환 (람다식 사용)
         List<DayOfWeek> weeklyDays = taskRequest.getWeeklyDay(); // 이미 DayOfWeek 타입
 
+        long daysBetween = ChronoUnit.DAYS.between(taskRequest.getStartDate(), taskRequest.getDueDate()); // 시작일과 종료일 간격 계산
 
         while (startDate.isBefore(limitDate) || startDate.equals(limitDate)) {
             for (DayOfWeek dayOfWeek : weeklyDays) { // 선택된 요일 각각에 대해 반복
@@ -946,8 +958,10 @@ public class TaskService {
                 // 고유한 taskId 생성
                 String uniqueTaskId = baseTaskId + "_" + instanceNumber;
                 task.setTaskId(uniqueTaskId);
-                task.setStartDate(nextDate);
-                task.setDueDate(nextDate);
+
+                task.setStartDate(startDate);
+                LocalDate dueDate = startDate.plusDays(daysBetween); // 종료일 설정
+                task.setDueDate(dueDate);
 
                 task.setCreatedBy(taskRequest.getCreatedBy());
                 task.setRecurring(taskRequest.isRecurring());
@@ -980,6 +994,8 @@ public class TaskService {
         String baseTaskId = "TASK_" + UUID.randomUUID().toString().substring(0, 8); // 공통 접두사 생성
 
         int instanceNumber = 1;
+        long daysBetween = ChronoUnit.DAYS.between(taskRequest.getStartDate(), taskRequest.getDueDate()); // 시작일과 종료일 간격 계산
+
         while (startDate.isBefore(limitDate) || startDate.equals(limitDate)) {
             LocalDate nextDate;
 
@@ -999,8 +1015,10 @@ public class TaskService {
             // 고유한 taskId 생성
             String uniqueTaskId = baseTaskId + "_" + instanceNumber;
             task.setTaskId(uniqueTaskId);
-            task.setStartDate(nextDate);
-            task.setDueDate(nextDate);
+
+            task.setStartDate(startDate);
+            LocalDate dueDate = startDate.plusDays(daysBetween); // 종료일 설정
+            task.setDueDate(dueDate);
 
             task.setCreatedBy(taskRequest.getCreatedBy());
             task.setRecurring(taskRequest.isRecurring());
@@ -1042,6 +1060,8 @@ public class TaskService {
         // 시작일을 설정된 월로 변경하여 초기화
         LocalDate currentDate = startDate.withMonth(monthOfYear).withDayOfMonth(1);
 
+        long daysBetween = ChronoUnit.DAYS.between(taskRequest.getStartDate(), taskRequest.getDueDate()); // 시작일과 종료일 간격 계산
+
         while (currentDate.isBefore(limitDate) || currentDate.equals(limitDate)) {
             LocalDate nextDate;
 
@@ -1060,8 +1080,10 @@ public class TaskService {
             Task task = new Task(taskRequest);
             String uniqueTaskId = baseTaskId + "_" + instanceNumber; // 고유한 taskId 생성
             task.setTaskId(uniqueTaskId);
-            task.setStartDate(nextDate);
-            task.setDueDate(nextDate);
+
+            task.setStartDate(startDate);
+            LocalDate dueDate = startDate.plusDays(daysBetween); // 종료일 설정
+            task.setDueDate(dueDate);
 
             task.setCreatedBy(taskRequest.getCreatedBy());
             task.setRecurring(taskRequest.isRecurring());
