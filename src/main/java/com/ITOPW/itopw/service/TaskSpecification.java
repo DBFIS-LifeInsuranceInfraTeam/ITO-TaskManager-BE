@@ -32,7 +32,9 @@ public class TaskSpecification {
                     predicates.add(criteriaBuilder.equal(root.get("itoProcessId"), itoProcessId));
                 }
                 if (assigneeId != null && !assigneeId.isEmpty()) {
-                    predicates.add(criteriaBuilder.equal(root.get("assigneeId"), assigneeId));
+                    // Join Task -> User
+                    Join<Task, User> assigneeJoin = root.join("assignees", JoinType.INNER);
+                    predicates.add(criteriaBuilder.equal(assigneeJoin.get("userId"), assigneeId));
                 }
                 if (startDate != null) {
                     predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("startDate"), startDate));
@@ -50,11 +52,11 @@ public class TaskSpecification {
 
                 if (unit != null && !unit.isEmpty()) {
                     List<User> usersInProjects = userService.getUsersByProjectIdListAndUnit(projectIds, unit);
-                    List<String> userIds = new ArrayList<>();
-                    for (User user : usersInProjects) {
-                        userIds.add(user.getUserId());
-                    }
-                    predicates.add(root.get("assigneeId").in(userIds));
+                    List<String> userIds = usersInProjects.stream()
+                            .map(User::getUserId)
+                            .collect(Collectors.toList());
+                    Join<Task, User> assigneeJoin = root.join("assignees", JoinType.INNER);
+                    predicates.add(assigneeJoin.get("userId").in(userIds));
                 }
             }
 //                if (!userIdsWithUnit.isEmpty()) {

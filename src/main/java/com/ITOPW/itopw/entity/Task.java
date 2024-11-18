@@ -90,5 +90,6 @@ public class Task {
         this.status = taskRequest.getStatus();
         this.itoProcessId = taskRequest.getItoProcessId();
         this.assigneeConfirmation = taskRequest.getAssigneeConfirmation();
+        this.recurring = taskRequest.isRecurring();
     }
 }

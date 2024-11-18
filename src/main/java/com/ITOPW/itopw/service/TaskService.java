@@ -13,7 +13,9 @@ import com.ITOPW.itopw.repository.TaskRepository;
 import com.ITOPW.itopw.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.http.HttpStatus;
@@ -664,7 +666,11 @@ public class TaskService {
 //    }
 
     public Page<TaskResponseDTO> getTasksByProjectIds(List<String> projectIds, Pageable pageable) {
-        Page<Task> tasks = taskRepository.findByProjectIdInWithAssignees(projectIds, pageable);
+        // 정렬 추가: dueDate 기준 오름차순
+        // 정렬 추가: dueDate 기준 오름차순
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("dueDate").ascending());
+
+        Page<Task> tasks = taskRepository.findByProjectIdInWithAssignees(projectIds, sortedPageable);
 
         return tasks.map(task -> {
             TaskResponseDTO dto = mapToTaskResponseDTO(task);
@@ -752,6 +758,7 @@ public class TaskService {
         dto.setAssigneeConfirmation(task.getAssigneeConfirmation());
         dto.setCreatedBy(task.getCreatedBy());
         dto.setCommentCount(task.getCommentCount());
+        dto.setRecurring(task.isRecurring());
 
 //        // Assignee 정보 설정
 //        Optional<User> assignee = userRepository.findById(task.getAssigneeId());

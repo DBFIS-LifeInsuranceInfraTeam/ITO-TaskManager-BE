@@ -67,6 +67,7 @@ public class TaskResponseDTO {
     private String assigneeConfirmation;
     private String createdBy;
     private List<CommentResponseDTO> comments;
+    private boolean recurring;
 
     public TaskResponseDTO(String taskId, String projectId, String taskName, String description, List<Assignee> assignees, LocalDate createdDate, LocalDate startDate, LocalDate dueDate, Integer frequencyId, Integer commentCount, Integer status, String itoProcessId, String assigneeConfirmation, List<CommentResponseDTO> comments, String createdBy) {
         this.taskId = taskId;
