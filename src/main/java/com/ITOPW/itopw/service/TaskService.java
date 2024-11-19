@@ -1053,6 +1053,72 @@ public class TaskService {
         return firstDayOfMonth.plusDays(dayOfWeekValue + 7 * (weekOfMonth - 1));
     }
 
+//    private List<Task> createYearlyTasks(TaskRequest taskRequest, LocalDate startDate, LocalDate limitDate) {
+//        List<Task> tasks = new ArrayList<>();
+//        Integer monthOfYear = taskRequest.getYearlyMonth();      // 매년 월 (예: 11월)
+//        Integer dayOfMonth = taskRequest.getYearlyDayOfMonth();  // 매년 특정 일자 (예: 6일)
+//        Integer weekOfMonth = taskRequest.getYearlyWeekOfMonth();// 매년 몇 번째 주
+//        DayOfWeek dayOfWeek = taskRequest.getYearlyDayOfWeek();  // 매년 요일
+//
+//
+//        String baseTaskId = "TASK_" + UUID.randomUUID().toString().substring(0, 8); // 공통 접두사 생성
+//
+//        int instanceNumber = 1;
+//        // 시작일을 설정된 월로 변경하여 초기화
+//        LocalDate currentDate = startDate.withMonth(monthOfYear).withDayOfMonth(1);
+//
+//        long daysBetween = ChronoUnit.DAYS.between(taskRequest.getStartDate(), taskRequest.getDueDate()); // 시작일과 종료일 간격 계산
+//
+//        while (currentDate.isBefore(limitDate) || currentDate.equals(limitDate)) {
+//            LocalDate nextDate;
+//
+//            if (dayOfMonth != null) {
+//                // 케이스 1: 매년 같은 월의 특정 일자 (예: 11월 6일)
+//                nextDate = currentDate.withDayOfMonth(dayOfMonth);
+//            } else if (weekOfMonth != null && dayOfWeek != null) {
+//                // 케이스 2: 매년 같은 월의 특정 주와 요일 (예: 11월 첫 번째 수요일)
+//                nextDate = getYearlyWeekday(currentDate, weekOfMonth, dayOfWeek);
+//            } else {
+//                throw new IllegalArgumentException("유효하지 않은 연간 반복 설정입니다.");
+//            }
+//
+//            if (nextDate.isAfter(limitDate)) break;
+//
+//            Task task = new Task(taskRequest);
+//            String uniqueTaskId = baseTaskId + "_" + instanceNumber; // 고유한 taskId 생성
+//            task.setTaskId(uniqueTaskId);
+//
+//            task.setStartDate(currentDate);
+//            LocalDate dueDate = currentDate.plusDays(daysBetween); // 종료일 설정
+//            task.setDueDate(dueDate);
+//
+//            task.setCreatedBy(taskRequest.getCreatedBy());
+//            task.setRecurring(taskRequest.isRecurring());
+//            // Assignees 처리 로직 추가
+//            List<User> users = userRepository.findAllByUserIdIn(taskRequest.getAssigneeIds());
+//            if (users.isEmpty()) {
+//                throw new RuntimeException("사용자를 찾을 수 없습니다.");
+//            }
+//            task.setAssignees(new HashSet<>(users)); // User 엔티티를 Set으로 변환하여 설정
+//
+//            tasks.add(task);
+//
+//            // 다음 해의 첫 날로 이동
+//            currentDate = currentDate.plusYears(1).withMonth(monthOfYear).withDayOfMonth(1);
+//            System.out.println(currentDate);
+//            instanceNumber++;
+//        }
+//
+//        return tasks;
+//    }
+//
+//    private LocalDate getYearlyWeekday(LocalDate date, int weekOfMonth, DayOfWeek dayOfWeek) {
+//        LocalDate firstDayOfMonth = date.withDayOfMonth(1);
+//        int dayOfWeekValue = dayOfWeek.getValue() - firstDayOfMonth.getDayOfWeek().getValue();
+//        dayOfWeekValue = (dayOfWeekValue < 0) ? dayOfWeekValue + 7 : dayOfWeekValue;
+//        return firstDayOfMonth.plusDays(dayOfWeekValue + 7 * (weekOfMonth - 1));
+//    }
+
     private List<Task> createYearlyTasks(TaskRequest taskRequest, LocalDate startDate, LocalDate limitDate) {
         List<Task> tasks = new ArrayList<>();
         Integer monthOfYear = taskRequest.getYearlyMonth();      // 매년 월 (예: 11월)
@@ -1065,19 +1131,29 @@ public class TaskService {
 
         int instanceNumber = 1;
         // 시작일을 설정된 월로 변경하여 초기화
-        LocalDate currentDate = startDate.withMonth(monthOfYear).withDayOfMonth(1);
-
+        LocalDate currentDate = startDate;
         long daysBetween = ChronoUnit.DAYS.between(taskRequest.getStartDate(), taskRequest.getDueDate()); // 시작일과 종료일 간격 계산
-
         while (currentDate.isBefore(limitDate) || currentDate.equals(limitDate)) {
             LocalDate nextDate;
 
             if (dayOfMonth != null) {
                 // 케이스 1: 매년 같은 월의 특정 일자 (예: 11월 6일)
                 nextDate = currentDate.withDayOfMonth(dayOfMonth);
+
+                // dayOfMonth가 유효하지 않은 경우 건너뜀
+                if (nextDate.getMonthValue() != monthOfYear || nextDate.isBefore(startDate)) {
+                    currentDate = currentDate.plusYears(1);
+                    continue;
+                }
             } else if (weekOfMonth != null && dayOfWeek != null) {
                 // 케이스 2: 매년 같은 월의 특정 주와 요일 (예: 11월 첫 번째 수요일)
                 nextDate = getYearlyWeekday(currentDate, weekOfMonth, dayOfWeek);
+                System.out.println(nextDate); // 디버깅: nextDate 확인
+                // 특정 주와 요일이 시작일 이전이거나 월 범위를 벗어나면 건너뜀
+                if (nextDate.isBefore(startDate) || nextDate.getMonthValue() != monthOfYear) {
+                    currentDate = currentDate.plusYears(1);
+                    continue;
+                }
             } else {
                 throw new IllegalArgumentException("유효하지 않은 연간 반복 설정입니다.");
             }
@@ -1087,13 +1163,11 @@ public class TaskService {
             Task task = new Task(taskRequest);
             String uniqueTaskId = baseTaskId + "_" + instanceNumber; // 고유한 taskId 생성
             task.setTaskId(uniqueTaskId);
-
-            task.setStartDate(startDate);
-            LocalDate dueDate = startDate.plusDays(daysBetween); // 종료일 설정
-            task.setDueDate(dueDate);
-
+            task.setStartDate(nextDate);
+            task.setDueDate(nextDate.plusDays(daysBetween)); // 종료일 설정
             task.setCreatedBy(taskRequest.getCreatedBy());
             task.setRecurring(taskRequest.isRecurring());
+
             // Assignees 처리 로직 추가
             List<User> users = userRepository.findAllByUserIdIn(taskRequest.getAssigneeIds());
             if (users.isEmpty()) {
@@ -1110,6 +1184,7 @@ public class TaskService {
         }
 
         return tasks;
+
     }
 
     private LocalDate getYearlyWeekday(LocalDate date, int weekOfMonth, DayOfWeek dayOfWeek) {
@@ -1118,6 +1193,7 @@ public class TaskService {
         dayOfWeekValue = (dayOfWeekValue < 0) ? dayOfWeekValue + 7 : dayOfWeekValue;
         return firstDayOfMonth.plusDays(dayOfWeekValue + 7 * (weekOfMonth - 1));
     }
+
 
 
     // 반복 업무 삭제

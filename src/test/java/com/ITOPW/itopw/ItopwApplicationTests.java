@@ -9,6 +9,8 @@ import org.springframework.mail.SimpleMailMessage;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -52,5 +54,7 @@ class ItopwApplicationTests {
 			System.out.println("메일 전송 실패: " + e.getMessage());
 		}
 	}
+
+
 
 }
