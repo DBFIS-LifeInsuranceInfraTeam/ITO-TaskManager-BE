@@ -67,14 +67,34 @@ public class UserController {
             }
 
             // Persistent Volume에 연결된 경로
-            String uploadDir = "/app/uploads/profile-images/";
-            String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+            String uploadDir = "/app/images/uploads/profile-images/";
+
+            String mimeType = file.getContentType();
+            String extension = "";
+
+            if (mimeType != null) {
+                switch (mimeType) {
+                    case "image/jpeg":
+                        extension = ".jpg";
+                        break;
+                    case "image/png":
+                        extension = ".png";
+                        break;
+                    case "image/gif":
+                        extension = ".gif";
+                        break;
+                    default:
+                        throw new IllegalArgumentException("허용되지 않은 파일 형식입니다.");
+                }
+            }
+
+            String fileName = UUID.randomUUID().toString() + extension;
             File dest = new File(uploadDir + fileName);
             file.transferTo(dest);
 
             // DB에 파일 경로 저장
             // DB에 파일 경로 저장
-            String profileImagePath = "/uploads/profile-images/" + fileName;
+            String profileImagePath = "images/uploads/profile-images/" + fileName;
             userService.updateProfileImage(userId, profileImagePath);
 
 //            return ResponseEntity.status(HttpStatus.OK)
