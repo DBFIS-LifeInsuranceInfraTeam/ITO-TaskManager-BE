@@ -19,6 +19,14 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedMethods("GET", "POST");
     }
 
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/images/uploads/profile-images/**")
+                .addResourceLocations("file:/app/images/uploads/profile-images/")
+                .setCachePeriod(3600) // 캐시 기간 설정 (초 단위)
+                .resourceChain(true);
+    }
+
 //    @Override
 //    public void addResourceHandlers(ResourceHandlerRegistry registry) {
 //        registry.addResourceHandler("/images/**")
