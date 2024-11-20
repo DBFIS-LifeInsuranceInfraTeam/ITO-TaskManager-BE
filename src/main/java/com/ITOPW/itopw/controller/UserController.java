@@ -2,6 +2,7 @@ package com.ITOPW.itopw.controller;
 
 import com.ITOPW.itopw.dto.Response;
 import com.ITOPW.itopw.dto.request.UserUpdateRequest;
+import com.ITOPW.itopw.dto.response.BaseResponseDTO;
 import com.ITOPW.itopw.entity.User;
 import com.ITOPW.itopw.service.UserService;
 import com.ITOPW.itopw.service.UserServiceImpl;
@@ -57,7 +58,7 @@ public class UserController {
     }
 
     @PostMapping("/{userId}/profile-image")
-    public ResponseEntity<String> uploadProfileImage(
+    public BaseResponseDTO uploadProfileImage(
             @PathVariable String userId,
             @RequestParam("file") MultipartFile file) {
         try {
@@ -76,10 +77,12 @@ public class UserController {
             String profileImagePath = "/uploads/profile-images/" + fileName;
             userService.updateProfileImage(userId, profileImagePath);
 
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body("파일 업로드 성공: " + fileName);
+//            return ResponseEntity.status(HttpStatus.OK)
+//                    .body("파일 업로드 성공: " + fileName);
+            return new BaseResponseDTO(200, "OK", "파일 업로드 성공: " + fileName);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("파일 업로드 실패: " + e.getMessage());
+            return new BaseResponseDTO(500, "INTERNAL_SERVER_ERROR", "파일 업로드 실패: " + e.getMessage());
+                    //ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("파일 업로드 실패: " + e.getMessage());
         }
     }
 }
