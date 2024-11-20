@@ -8,6 +8,7 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
@@ -130,8 +131,12 @@ public class EmailNotificationJob implements Job {
 
             helper.setText(htmlContent, true);
 
-            File imageFile = new File("app/images/DB_Logo.png");
-            helper.addInline("logoImage", imageFile);
+
+            ClassPathResource imageResource = new ClassPathResource("static/images/DB_Logo.png");
+            helper.addInline("logoImage", imageResource);
+
+//            File imageFile = new File("app/images/DB_Logo.png");
+//            helper.addInline("logoImage", imageFile);
 
             mailSender.send(message);
         } catch (Exception e) {
