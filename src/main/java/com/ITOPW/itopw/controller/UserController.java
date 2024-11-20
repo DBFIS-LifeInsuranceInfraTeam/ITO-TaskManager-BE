@@ -76,7 +76,8 @@ public class UserController {
             String profileImagePath = "/uploads/profile-images/" + fileName;
             userService.updateProfileImage(userId, profileImagePath);
 
-            return ResponseEntity.ok("파일 업로드 성공: " + fileName);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body("파일 업로드 성공: " + fileName);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("파일 업로드 실패: " + e.getMessage());
         }
