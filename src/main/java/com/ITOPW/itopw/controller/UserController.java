@@ -99,7 +99,7 @@ public class UserController {
 
 //            return ResponseEntity.status(HttpStatus.OK)
 //                    .body("파일 업로드 성공: " + fileName);
-            return new BaseResponseDTO(200, "OK", "파일 업로드 성공: " + fileName);
+            return new BaseResponseDTO(200, "OK", "images/uploads/profile-images/" + fileName);
         } catch (Exception e) {
             return new BaseResponseDTO(500, "INTERNAL_SERVER_ERROR", "파일 업로드 실패: " + e.getMessage());
                     //ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("파일 업로드 실패: " + e.getMessage());
