@@ -841,11 +841,13 @@ public class TaskService {
     }
 
 
-        // 매일 자정에 실행 (cron 표현식 사용)
+    // 매일 자정에 실행 (cron 표현식 사용)
     @Scheduled(cron = "0 0 0 * * *")
     public void updateTaskStatus() {
         LocalDate today = LocalDate.now();
-        taskRepository.updateStatusForPastTasks(today);
+        System.out.println(today);
+        taskRepository.updateStatusToInProgress(today);
+        taskRepository.updateStatusToOverdue(today);
     }
 
     // Task 완료처리

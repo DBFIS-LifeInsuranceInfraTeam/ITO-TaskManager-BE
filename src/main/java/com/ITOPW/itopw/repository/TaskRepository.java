@@ -43,7 +43,12 @@ public interface TaskRepository extends JpaRepository<Task, String>, JpaSpecific
     @Transactional
     @Modifying
     @Query("UPDATE Task t SET t.status = 1 WHERE t.startDate <= :today AND t.status = 0")
-    void updateStatusForPastTasks(LocalDate today);
+    void updateStatusToInProgress(LocalDate today);
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE Task t SET t.status = 3 WHERE t.dueDate < :today AND t.status IN (0, 1)")
+    void updateStatusToOverdue(LocalDate today);
 
     // Task 완료시 status 2로 변경
     @Transactional
