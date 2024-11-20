@@ -113,4 +113,12 @@ public class UserServiceImpl implements UserService {
             super(message);
         }
     }
+
+    @Override
+    public void updateProfileImage(String userId, String profileImagePath) {
+        int rowsUpdated = userRepository.updateProfileImage(userId, profileImagePath);
+        if (rowsUpdated == 0) {
+            throw new UserNotFoundException("사용자를 찾을 수 없습니다. UserId: " + userId);
+        }
+    }
 }

@@ -32,4 +32,7 @@ public interface UserService {
     List<User> getUsersByProjectIdListAndUnit(List<String> projectIds, String unit);
 
     User updateUser(String userId, UserUpdateRequest request);
+
+    //프로필이미지 업로드
+    void updateProfileImage(String userId, String profileImagePath);
 }

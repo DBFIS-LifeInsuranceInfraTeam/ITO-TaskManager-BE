@@ -3,7 +3,9 @@ package com.ITOPW.itopw.repository;
 import com.ITOPW.itopw.entity.Statistics;
 import com.ITOPW.itopw.entity.User;
 import jakarta.persistence.QueryHint;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
@@ -35,5 +37,9 @@ public interface UserRepository extends JpaRepository<User, String> {
     // 여러 userId 값을 기반으로 사용자 목록 조회
     List<User> findAllByUserIdIn(List<String> userIds);
 
+    @Modifying
+    @Transactional
+    @Query("UPDATE User u SET u.photo = :profileImage WHERE u.userId = :userId")
+    int updateProfileImage(@Param("userId") String userId, @Param("profileImage") String profileImage);
 
 }

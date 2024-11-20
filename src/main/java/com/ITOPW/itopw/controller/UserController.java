@@ -8,8 +8,11 @@ import com.ITOPW.itopw.service.UserServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/users")
@@ -50,6 +53,32 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new Response(500, "Error", "사용자 정보를 업데이트하는 중 오류가 발생했습니다.", null));
+        }
+    }
+
+    @PostMapping("/{userId}/profile-image")
+    public ResponseEntity<String> uploadProfileImage(
+            @PathVariable String userId,
+            @RequestParam("file") MultipartFile file) {
+        try {
+            if (file.isEmpty()) {
+                throw new IllegalArgumentException("파일이 비어 있습니다.");
+            }
+
+            // Persistent Volume에 연결된 경로
+            String uploadDir = "/app/uploads/profile-images/";
+            String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+            File dest = new File(uploadDir + fileName);
+            file.transferTo(dest);
+
+            // DB에 파일 경로 저장
+            // DB에 파일 경로 저장
+            String profileImagePath = "/uploads/profile-images/" + fileName;
+            userService.updateProfileImage(userId, profileImagePath);
+
+            return ResponseEntity.ok("파일 업로드 성공: " + fileName);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("파일 업로드 실패: " + e.getMessage());
         }
     }
 }
