@@ -130,7 +130,7 @@ public class EmailNotificationJob implements Job {
 
             helper.setText(htmlContent, true);
 
-            File imageFile = new File("src/main/resources/static/images/DB_Logo.png");
+            File imageFile = new File("images/DB_Logo.png");
             helper.addInline("logoImage", imageFile);
 
             mailSender.send(message);
