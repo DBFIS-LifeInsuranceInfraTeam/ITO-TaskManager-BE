@@ -69,4 +69,8 @@ public interface TaskRepository extends JpaRepository<Task, String>, JpaSpecific
 
     @Query("SELECT t FROM Task t JOIN FETCH t.assignees WHERE t.taskId = :taskId")
     Optional<Task> findTaskWithAssignees(@Param("taskId") String taskId);
+
+    @Query("SELECT t FROM Task t JOIN FETCH t.assignees WHERE t.dueDate = :dueDate")
+    List<Task> findTasksDueTomorrow(@Param("dueDate") LocalDate dueDate);
+
 }

@@ -35,10 +35,9 @@ public class EmailNotificationJob implements Job {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         LocalDate nextDay = LocalDate.now().plusDays(1);
-        //List<Task> tasksDueTomorrow = taskRepository.findByDueDate(nextDay);
-        String taskId = "TASK_21ac9cd1";
-//        Optional<Task> tasksDueTomorrow = taskRepository.findByTaskId(taskId);
-        Optional<Task> tasksDueTomorrow = taskRepository.findTaskWithAssignees(taskId);
+        List<Task> tasksDueTomorrow = taskRepository.findTasksDueTomorrow(nextDay);
+        // String taskId = "TASK_21ac9cd1";
+        //Optional<Task> tasksDueTomorrow = taskRepository.findTaskWithAssignees(taskId);
 
 
         if (tasksDueTomorrow.isEmpty()) {
@@ -46,45 +45,24 @@ public class EmailNotificationJob implements Job {
             return;
         }
 
-//        for (Task task : tasksDueTomorrow) {
-//            try {
-//                User assignee = userRepository.findByUserId(task.getAssignees()).orElseThrow(() ->
-//                        new Exception("담당자를 찾을 수 없습니다. Task ID: " + task.getTaskId()));
-//
-//                if (assignee.getEmail() != null) {
-//                    sendStyledEmailWithImage(assignee.getEmail(), task, assignee);
-//                } else {
-//                    System.out.println("담당자의 이메일이 없습니다. Task ID: " + task.getTaskId());
-//                }
-//            } catch (Exception e) {
-//                System.out.println("오류 발생: " + e.getMessage());
-//            }
-//        }
+        for (Task task : tasksDueTomorrow){
+            Set<User> assignees = task.getAssignees(); // Task의 assigneeIds 가져오기
+            if (assignees.isEmpty()) {
+                System.out.println("Task ID " + task.getTaskId() + "에 대한 담당자가 없습니다.");
+                return;
+            }
 
-
-        Task task = tasksDueTomorrow.get();
-        Set<User> assigneeIds = task.getAssignees(); // Task의 assigneeIds 가져오기
-
-        if (assigneeIds == null || assigneeIds.isEmpty()) {
-            System.out.println("Task ID " + taskId + "에 대한 담당자가 없습니다.");
-            return;
-        }
-
-        for (User assigneeId : assigneeIds) {
-            try {
-                // 담당자(User) 조회
-                User assignee = userRepository.findByUserId(assigneeId.getUserId())
-                        .orElseThrow(() -> new Exception("담당자를 찾을 수 없습니다. User ID: " + assigneeId));
-
-                // 이메일 발송
-                if (assignee.getEmail() != null && !assignee.getEmail().isEmpty()) {
-                    sendStyledEmailWithImage(assignee.getEmail(), task, assignee);
-                    System.out.println("이메일 발송 완료: " + assignee.getEmail());
-                } else {
-                    System.out.println("담당자의 이메일이 없습니다. User ID: " + assigneeId);
+            for (User assignee : assignees) {
+                try {
+                    if (assignee.getEmail() != null && !assignee.getEmail().isEmpty()) {
+                        sendStyledEmailWithImage(assignee.getEmail(), task, assignee);
+                        System.out.println("이메일 발송 완료: " + assignee.getEmail());
+                    } else {
+                        System.out.println("담당자의 이메일이 없습니다. User ID: " + assignee.getUserId());
+                    }
+                } catch (Exception e) {
+                    System.out.println("오류 발생: " + e.getMessage());
                 }
-            } catch (Exception e) {
-                System.out.println("오류 발생: " + e.getMessage());
             }
         }
     }
