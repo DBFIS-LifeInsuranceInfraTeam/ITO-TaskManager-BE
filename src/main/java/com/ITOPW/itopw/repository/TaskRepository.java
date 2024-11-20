@@ -66,4 +66,7 @@ public interface TaskRepository extends JpaRepository<Task, String>, JpaSpecific
     @Modifying
     @Query("DELETE FROM Task t WHERE t.taskId LIKE :taskIdPrefix%")
     void deleteByTaskIdStartingWith(@Param("taskIdPrefix") String taskIdPrefix);
+
+    @Query("SELECT t FROM Task t JOIN FETCH t.assignees WHERE t.taskId = :taskId")
+    Optional<Task> findTaskWithAssignees(@Param("taskId") String taskId);
 }

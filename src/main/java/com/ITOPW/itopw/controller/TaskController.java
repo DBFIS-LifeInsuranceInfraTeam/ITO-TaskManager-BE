@@ -159,7 +159,7 @@ public class TaskController {
             }
 
             // 리다이렉트 URL 설정
-            URI redirectUri = URI.create("http://210.127.59.84:31427/task/detail?taskId=" + taskId);
+            URI redirectUri = URI.create("http://210.127.59.84:31427/tasks/detail?taskId=" + taskId);
 
             // 리다이렉트 응답 반환
             return ResponseEntity.status(HttpStatus.FOUND).location(redirectUri).build();
