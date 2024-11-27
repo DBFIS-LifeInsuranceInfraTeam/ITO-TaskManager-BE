@@ -52,7 +52,7 @@ public class QuartzConfig {
                 .withIdentity("emailNotificationTrigger")
                 // 필요에 따라 변경하여 테스트
                // .withSchedule(CronScheduleBuilder.cronSchedule("0 0 0 * * ?"))
-              .withSchedule(CronScheduleBuilder.cronSchedule("0,30 * * * * ?"))
+              .withSchedule(CronScheduleBuilder.cronSchedule("0 0 0 * * ?"))
                 .build();
     }
 
