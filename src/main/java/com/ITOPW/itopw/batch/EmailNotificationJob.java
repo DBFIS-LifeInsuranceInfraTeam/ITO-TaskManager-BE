@@ -34,7 +34,10 @@ public class EmailNotificationJob implements Job {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        LocalDate nextDay = LocalDate.now().plusDays(1);
+//        LocalDate nextDay = LocalDate.now().plusDays(1);
+
+        LocalDate nextDay = LocalDate.now();
+
         List<Task> tasksDueTomorrow = taskRepository.findTasksDueTomorrow(nextDay);
         // String taskId = "TASK_21ac9cd1";
         //Optional<Task> tasksDueTomorrow = taskRepository.findTaskWithAssignees(taskId);
